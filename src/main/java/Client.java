@@ -69,6 +69,10 @@ public class Client extends NetworkNode {
     public static void main(String[] args) throws Exception {
         Client client = new Client("localhost", 8080);
         Command command = Enhancement.createProxy(client, Command.class);
-        System.out.println(command.output("test"));
+        long time = System.currentTimeMillis();
+        for (int i = 0; i < 100; i++) {
+            System.out.println(command.output("test"));
+        }
+        System.out.println(System.currentTimeMillis() - time);
     }
 }

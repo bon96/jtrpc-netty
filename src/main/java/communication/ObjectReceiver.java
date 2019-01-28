@@ -17,7 +17,9 @@ public class ObjectReceiver {
         if (!receives.containsKey(id)) {
             receives.put(id, new FutureReceive());
         }
-        return receives.get(id).get();
+        Object received = receives.get(id).get();
+        receives.remove(id);
+        return received;
     }
 
     public void onReceive(RpcAnswer rpcAnswer) {

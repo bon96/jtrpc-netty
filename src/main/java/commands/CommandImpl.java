@@ -7,8 +7,10 @@ package commands;
  */
 
 public class CommandImpl implements Command {
+    private static int count = 0;
     @Override
     public String output(String string) {
-        return string + " 23";
+        count++;
+        return string + " " + count;
     }
 }
