@@ -3,10 +3,7 @@ import com.github.thorbenkuck.netcom2.network.client.Sender;
 import commands.Command;
 import commands.Commands;
 import communication.ObjectReceiver;
-import communication.RpcAnswer;
-
-import java.util.ArrayList;
-import java.util.List;
+import communication.RemoteAnswer;
 
 /**
  * Tommi
@@ -21,26 +18,23 @@ public class Client extends NetworkNode {
     private Sender sender;
     private ObjectReceiver receiver;
 
-    List<Class> commands = new ArrayList<>();
-
-    public Object received = null;
-
     public Client(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
         ClientStart clientStart = ClientStart.at(host, port);
 
         clientStart.getCommunicationRegistration()
-                .register(RpcAnswer.class)
+                .register(RemoteAnswer.class)
                 .addFirst(this::onReceive);
 
         clientStart.launch();
+
         this.sender = Sender.open(clientStart);
         this.receiver = new ObjectReceiver();
     }
 
-    public void onReceive(RpcAnswer rpcAnswer) {
-        receiver.onReceive(rpcAnswer);
+    public void onReceive(RemoteAnswer remoteAnswer) {
+        receiver.onReceive(remoteAnswer);
     }
 
     public void send(Object object) {
@@ -69,6 +63,7 @@ public class Client extends NetworkNode {
     public static void main(String[] args) throws Exception {
         Client client = new Client("localhost", 8080);
         Command command = Enhancement.createProxy(client, Command.class);
+
         long time = System.currentTimeMillis();
         for (int i = 0; i < 100; i++) {
             System.out.println(command.output("test"));

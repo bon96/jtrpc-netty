@@ -22,10 +22,10 @@ public class ObjectReceiver {
         return received;
     }
 
-    public void onReceive(RpcAnswer rpcAnswer) {
-        if (!receives.containsKey(rpcAnswer.getId())) {
-            receives.put(rpcAnswer.getId(), new FutureReceive());
+    public void onReceive(RemoteAnswer remoteAnswer) {
+        if (!receives.containsKey(remoteAnswer.getId())) {
+            receives.put(remoteAnswer.getId(), new FutureReceive());
         }
-        receives.get(rpcAnswer.getId()).receive(rpcAnswer.getObject());
+        receives.get(remoteAnswer.getId()).receive(remoteAnswer.getObject());
     }
 }

@@ -11,6 +11,7 @@ public class Commands {
     public String sendBack(String string) {
         return string;
     }
+
     public String sendBack(String string1, String string2) {
         return string1 + ", " + string2;
     }

@@ -8,12 +8,12 @@ import java.io.Serializable;
  * Time: 18.24
  */
 
-public class RpcAnswer implements Serializable {
+public class RemoteAnswer implements Serializable {
 
     private long id;
     private Object object;
 
-    public RpcAnswer(long id, Object object) {
+    public RemoteAnswer(long id, Object object) {
         this.id = id;
         this.object = object;
     }
