@@ -7,7 +7,6 @@ import java.util.List;
 
 public abstract class NetworkNode {
 
-
     private List<RemoteMethod> remoteMethods = new ArrayList<>();
 
     abstract String getName();
