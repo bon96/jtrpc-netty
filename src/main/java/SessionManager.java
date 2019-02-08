@@ -13,7 +13,6 @@ public class SessionManager {
 
     private Map<String, Session> sessionMap = new HashMap<>();
 
-
     public void register(String name, Session session) {
         sessionMap.put(name, session);
     }
@@ -24,5 +23,13 @@ public class SessionManager {
 
     public Session get(String name) {
         return sessionMap.get(name);
+    }
+
+    public boolean contains(String name) {
+        return sessionMap.containsKey(name);
+    }
+
+    public boolean contains(Session session) {
+        return sessionMap.containsValue(session);
     }
 }

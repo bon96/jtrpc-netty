@@ -10,12 +10,24 @@ import java.io.Serializable;
 
 public class RemoteAnswer implements Serializable {
 
+    private String getReceiverName;
     private long id;
     private Object object;
 
-    public RemoteAnswer(long id, Object object) {
+    public RemoteAnswer(String getReceiverName, long id, Object object) {
+        this.getReceiverName = getReceiverName;
         this.id = id;
         this.object = object;
+    }
+
+    public RemoteAnswer(long id, Object object) {
+        this.getReceiverName = null;
+        this.id = id;
+        this.object = object;
+    }
+
+    public String getReceiverName() {
+        return getReceiverName;
     }
 
     public long getId() {

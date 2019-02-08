@@ -1,12 +1,14 @@
 package communication;
 
+import java.io.Serializable;
+
 /**
  * Tommi
  * Date: 29.1.2019
  * Time: 0.02
  */
 
-public class SessionRegistrationCall {
+public class SessionRegistrationCall implements Serializable {
 
     private String name;
 

@@ -14,12 +14,14 @@ import java.util.List;
 
 public class RemoteMethodCall implements Serializable {
 
+    private String senderName;
     private String className;
     private String methodName;
     private Object[] objects;
     private List<String> parameterTypes = new ArrayList<>();
 
-    public RemoteMethodCall(String className, String methodName, Object... objects) {
+    public RemoteMethodCall(String senderName, String className, String methodName, Object... objects) {
+        this.senderName = senderName;
         this.className = className;
         this.methodName = methodName;
         this.objects = objects;
@@ -29,8 +31,8 @@ public class RemoteMethodCall implements Serializable {
         }
     }
 
-    public List<String> getParameterTypes() {
-        return parameterTypes;
+    public String getSenderName() {
+        return senderName;
     }
 
     public String getClassName() {
@@ -43,6 +45,10 @@ public class RemoteMethodCall implements Serializable {
 
     public Object[] getObjects() {
         return objects;
+    }
+
+    public List<String> getParameterTypes() {
+        return parameterTypes;
     }
 
     @Override

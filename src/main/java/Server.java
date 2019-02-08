@@ -1,11 +1,8 @@
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.network.shared.Session;
 import commands.Command;
 import commands.CommandImpl;
-import communication.RemoteAnswer;
-import communication.RemoteMethod;
-import communication.RemoteMethodCall;
-import communication.SessionRegistrationCall;
+import commands.Commands;
+import communication.*;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -20,12 +17,15 @@ public class Server extends NetworkNode {
     private int port;
     private SessionManager sessionManager;
     private ServerStart serverStart;
+    private ObjectReceiver receiver;
 
     public Server(int port) {
+        this.port = port;
+        this.sessionManager = new SessionManager();
+        this.receiver = new ObjectReceiver();
+
         new Thread(() -> {
             try {
-                this.port = port;
-                this.sessionManager = new SessionManager();
                 this.serverStart = ServerStart.at(port);
                 this.serverStart.launch();
 
@@ -35,7 +35,11 @@ public class Server extends NetworkNode {
 
                 this.serverStart.getCommunicationRegistration()
                         .register(RemoteMethodCall.class)
-                        .addFirst((session, o) -> onReceive(o, session));
+                        .addFirst((session, o) -> onReceive(o));
+
+                this.serverStart.getCommunicationRegistration()
+                        .register(RemoteAnswer.class)
+                        .addFirst((session, o) -> onReceive(o));
 
                 this.serverStart.acceptAllNextClients();
             } catch (Exception e) {
@@ -44,34 +48,70 @@ public class Server extends NetworkNode {
         }).start();
     }
 
-    public void onReceive(RemoteMethodCall remoteMethodCall, Session session) {
+    public void onReceive(RemoteMethodCall remoteMethodCall) {
         for (RemoteMethod remoteMethod : getRegisteredMethods()) {
             if (remoteMethod.hashCode() == remoteMethodCall.hashCode()) {
                 try {
-                    RemoteAnswer answer = new RemoteAnswer(
-                            remoteMethodCall.hashCode(),
-                            remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects()));
-                    session.send(answer);
+                    if (remoteMethod.getMethod().getReturnType().equals(void.class)) {
+                        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects());
+                    } else {
+                        RemoteAnswer answer = new RemoteAnswer(
+                                remoteMethodCall.getSenderName(),
+                                remoteMethodCall.hashCode(),
+                                remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects()));
+                        sessionManager.get(remoteMethodCall.getSenderName()).send(answer);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                break;
+                return;
             }
         }
+        throw new IllegalArgumentException("Method " + remoteMethodCall.getClassName() + "::" + remoteMethodCall.getMethodName()
+                + " is not registered!");
+    }
+
+    public void send(Object object, String destination) {
+        if (object instanceof RemoteMethodCall) {
+            if (sessionManager.contains(destination)) {
+                sessionManager.get(destination).send(object);
+            }
+        }
+        throw new IllegalArgumentException("Trying to send unsupported object type " + object.getClass().getName());
+    }
+
+    public Object sendAndWait(Object object, String destination) throws InterruptedException {
+        if (object instanceof RemoteMethodCall) {
+            if (sessionManager.contains(destination)) {
+                sessionManager.get(destination).send(object);
+                return getReceiver().get(object.hashCode());
+            } else {
+                throw new RuntimeException("No session for NetworkNode " + destination);
+            }
+        }
+        throw new IllegalArgumentException("Trying to send unsupported object type " + object.getClass().getName());
+    }
+
+    public void onReceive(RemoteAnswer remoteAnswer) {
+        receiver.onReceive(remoteAnswer);
+    }
+
+    public ObjectReceiver getReceiver() {
+        return receiver;
+    }
+
+    @Override
+    String getName() {
+        return "server";
     }
 
     public static void main(String[] args) throws Exception {
         Server server = new Server(8080);
         server.registerMethods(Command.class, CommandImpl.class);
-    }
-
-    @Override
-    public void send(Object object) {
-
-    }
-
-    @Override
-    public Object sendAndWait(Object object) throws InterruptedException {
-        return null;
+        while(!server.sessionManager.contains("client001")) {
+            Thread.sleep(1000);
+        }
+        Commands commands = Enhancement.createProxy(server, "client001", Commands.class);
+        System.out.println(commands.sendBack("test23", "test24"));
     }
 }

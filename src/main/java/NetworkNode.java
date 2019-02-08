@@ -7,12 +7,10 @@ import java.util.List;
 
 public abstract class NetworkNode {
 
-    abstract void send(Object object);
-    abstract Object sendAndWait(Object object) throws InterruptedException;
-
-
 
     private List<RemoteMethod> remoteMethods = new ArrayList<>();
+
+    abstract String getName();
 
     public void registerMethods(Object instance, List<Method> methods) {
         for (Method method : methods) {

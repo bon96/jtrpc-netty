@@ -9,6 +9,7 @@ import java.util.Map;
  * Time: 11.46
  */
 
+//TODO add timeout
 public class ObjectReceiver {
 
     private Map<Long, FutureReceive> receives = new HashMap<>();
