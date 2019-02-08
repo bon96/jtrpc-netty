@@ -85,6 +85,10 @@ public class Server extends NetworkNode {
         return "server";
     }
 
+    public int getPort() {
+        return port;
+    }
+
     public List<String> getConnectedClients() {
         return sessionManager.getSessionNames();
     }
