@@ -1,4 +1,4 @@
-package communication;
+package org.bonbom.communication;
 
 import java.io.Serializable;
 

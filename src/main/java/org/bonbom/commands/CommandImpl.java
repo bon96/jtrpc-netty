@@ -1,4 +1,4 @@
-package commands;
+package org.bonbom.commands;
 
 /**
  * Tommi
@@ -7,6 +7,7 @@ package commands;
  */
 
 public class CommandImpl implements Command {
+
     private static int count = 0;
     @Override
     public String output(String string) {

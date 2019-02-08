@@ -1,6 +1,10 @@
+package org.bonbom;
+
 import com.github.thorbenkuck.netcom2.network.shared.Session;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,5 +35,9 @@ public class SessionManager {
 
     public boolean contains(Session session) {
         return sessionMap.containsValue(session);
+    }
+
+    public List<String> getSessionNames() {
+        return new ArrayList<>(sessionMap.keySet());
     }
 }

@@ -1,4 +1,4 @@
-package communication;
+package org.bonbom.communication;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,13 +15,15 @@ import java.util.List;
 public class RemoteMethodCall implements Serializable {
 
     private String senderName;
+    private String receiverName;
     private String className;
     private String methodName;
     private Object[] objects;
     private List<String> parameterTypes = new ArrayList<>();
 
-    public RemoteMethodCall(String senderName, String className, String methodName, Object... objects) {
+    public RemoteMethodCall(String senderName, String receiverName, String className, String methodName, Object... objects) {
         this.senderName = senderName;
+        this.receiverName = receiverName;
         this.className = className;
         this.methodName = methodName;
         this.objects = objects;
@@ -33,6 +35,10 @@ public class RemoteMethodCall implements Serializable {
 
     public String getSenderName() {
         return senderName;
+    }
+
+    public String getReceiverName() {
+        return receiverName;
     }
 
     public String getClassName() {
