@@ -1,6 +1,7 @@
 package org.bonbom.communication;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Tommi
@@ -10,6 +11,8 @@ import java.util.concurrent.CountDownLatch;
 
 class FutureReceive {
 
+    public static long timeout = 10000;
+
     private Object receivedObject = null;
     private boolean  received = false;
     private CountDownLatch latch = new CountDownLatch(1);
@@ -17,7 +20,7 @@ class FutureReceive {
     Object get() throws InterruptedException {
         if (!received) {
             synchronized (latch) {
-                latch.await();
+                latch.await(timeout, TimeUnit.MILLISECONDS);
             }
         }
         return receivedObject;
