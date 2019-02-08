@@ -59,7 +59,7 @@ public class Server extends NetworkNode {
                                 remoteMethodCall.getSenderName(),
                                 remoteMethodCall.hashCode(),
                                 remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects()));
-                        sessionManager.get(remoteMethodCall.getSenderName()).send(answer);
+                        send(answer, remoteMethodCall.getSenderName());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -72,7 +72,7 @@ public class Server extends NetworkNode {
     }
 
     public void send(Object object, String destination) {
-        if (object instanceof RemoteMethodCall) {
+        if (object instanceof RemoteMethodCall || object instanceof RemoteAnswer) {
             if (sessionManager.contains(destination)) {
                 sessionManager.get(destination).send(object);
             }
