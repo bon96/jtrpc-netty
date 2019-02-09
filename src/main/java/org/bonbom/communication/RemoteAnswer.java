@@ -20,12 +20,6 @@ public class RemoteAnswer implements Serializable {
         this.object = object;
     }
 
-    public RemoteAnswer(long id, Object object) {
-        this.getReceiverName = null;
-        this.id = id;
-        this.object = object;
-    }
-
     public String getReceiverName() {
         return getReceiverName;
     }
