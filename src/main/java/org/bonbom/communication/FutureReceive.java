@@ -15,7 +15,7 @@ class FutureReceive {
 
     private Object receivedObject = null;
     private boolean  received = false;
-    private CountDownLatch latch = new CountDownLatch(1);
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     Object get() throws InterruptedException {
         if (!received) {
