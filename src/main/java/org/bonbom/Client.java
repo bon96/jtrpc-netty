@@ -2,9 +2,6 @@ package org.bonbom;
 
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
-import org.bonbom.commands.Command;
-import org.bonbom.commands.Commands;
-import org.bonbom.commands.ServerInfo;
 import org.bonbom.communication.ObjectReceiver;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethodCall;
@@ -16,7 +13,7 @@ import org.bonbom.communication.SessionRegistrationCall;
  * Time: 17.38
  */
 
-public class Client extends NetworkNode {
+public abstract class Client extends NetworkNode {
 
     private String host;
     private int port;
@@ -42,13 +39,6 @@ public class Client extends NetworkNode {
 
         this.sender = Sender.open(clientStart);
         send(new SessionRegistrationCall(getName()));
-    }
-
-
-
-    @Override
-    public String getName() {
-        return "client001";
     }
 
     @Override
@@ -79,23 +69,4 @@ public class Client extends NetworkNode {
         return port;
     }
 
-    public static void main(String[] args) throws Exception {
-        Client client = new Client("localhost", 8080);
-        ServerInfo serverInfo = Enhancement.createProxy(client, ServerInfo.class);
-        System.out.println(serverInfo.getConnectedClients());
-    }
-
-    public static void main5(String[] args) throws Exception {
-        Client client = new Client("localhost", 8080);
-        client.registerMethods(Commands.class);
-        Command command = Enhancement.createProxy(client, Command.class);
-        long time = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
-            System.out.println(command.output("test"));
-        }
-        System.out.println(System.currentTimeMillis() - time);
-        while (true) {
-            Thread.sleep(500);
-        }
-    }
 }

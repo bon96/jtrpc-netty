@@ -18,12 +18,11 @@ import java.util.List;
  */
 
 @Slf4j
-public class Server extends NetworkNode {
+public abstract class Server extends NetworkNode {
 
     private int port;
     private SessionManager sessionManager;
     private ServerStart serverStart;
-
 
     public Server(int port) {
         this.port = port;
@@ -80,11 +79,6 @@ public class Server extends NetworkNode {
         throw new RuntimeException("No session for " + remoteMethodCall.getReceiverName());
     }
 
-    @Override
-    public String getName() {
-        return "server";
-    }
-
     public int getPort() {
         return port;
     }
@@ -93,9 +87,4 @@ public class Server extends NetworkNode {
         return sessionManager.getSessionNames();
     }
 
-    public static void main(String[] args) throws Exception {
-        Server server = new Server(8080);
-        server.registerMethods(Command.class, CommandImpl.class);
-        server.registerMethods(new ServerInfo(server));
-    }
 }
