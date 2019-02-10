@@ -2,7 +2,6 @@ package org.bonbom;
 
 import org.bonbom.commands.Command;
 import org.bonbom.commands.Commands;
-import org.bonbom.commands.ServerInfo;
 
 public class ExampleClient extends Client {
 

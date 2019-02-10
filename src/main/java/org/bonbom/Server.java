@@ -1,7 +1,6 @@
 package org.bonbom;
 
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
-import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import lombok.extern.slf4j.Slf4j;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethodCall;
@@ -38,8 +37,8 @@ public abstract class Server extends NetworkNode {
                         .addFirst((session, o) -> {
                             sessionManager.register(o.getName(), session);
                             this.serverStart.clientList().getClient(session)
-                                    .ifPresent((Client client ) ->
-                                            client.addDisconnectedHandler((Client client1) -> {
+                                    .ifPresent(client ->
+                                            client.addDisconnectedHandler(client1 -> {
                                                 String name = sessionManager.get(client.getSession());
                                                 sessionManager.unRegister(name);
                                                 onDisconnect(name);
@@ -63,7 +62,7 @@ public abstract class Server extends NetworkNode {
     }
 
     public void onDisconnect(String name) {
-
+        log.info("Client {} disconnected", name);
     }
 
     public void stop() {

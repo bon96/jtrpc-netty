@@ -1,9 +1,5 @@
 package org.bonbom;
 
-import org.bonbom.commands.Command;
-import org.bonbom.commands.CommandImpl;
-import org.bonbom.commands.ServerInfo;
-
 public class ExampleServer extends Server {
 
     public ExampleServer(int port) {

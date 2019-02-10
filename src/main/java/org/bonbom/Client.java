@@ -42,6 +42,8 @@ public abstract class Client extends NetworkNode {
                     .register(RemoteMethodCall.class)
                     .addFirst(this::onReceive);
 
+            clientStart.addDisconnectedHandler(client -> onDisconnect());
+
             clientStart.launch();
 
             this.sender = Sender.open(clientStart);
@@ -51,6 +53,10 @@ public abstract class Client extends NetworkNode {
         } catch (StartFailedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void onDisconnect() {
+        log.warn("Lost connection to server");
     }
 
     public void stop() {
