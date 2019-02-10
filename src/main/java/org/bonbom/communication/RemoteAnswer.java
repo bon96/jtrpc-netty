@@ -10,18 +10,18 @@ import java.io.Serializable;
 
 public class RemoteAnswer implements Serializable {
 
-    private String getReceiverName;
+    private String receiverName;
     private long id;
     private Object object;
 
-    public RemoteAnswer(String getReceiverName, long id, Object object) {
-        this.getReceiverName = getReceiverName;
+    public RemoteAnswer(String receiverName, long id, Object object) {
+        this.receiverName = receiverName;
         this.id = id;
         this.object = object;
     }
 
     public String getReceiverName() {
-        return getReceiverName;
+        return receiverName;
     }
 
     public long getId() {
@@ -30,5 +30,10 @@ public class RemoteAnswer implements Serializable {
 
     public Object getObject() {
         return object;
+    }
+
+    @Override
+    public String toString() {
+        return receiverName + ", " + id + ", " + object.toString();
     }
 }

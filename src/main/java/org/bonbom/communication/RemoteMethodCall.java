@@ -61,4 +61,10 @@ public class RemoteMethodCall implements Serializable {
     public int hashCode() { //hashCode should match remoteMethod
         return className.hashCode() + methodName.hashCode() + parameterTypes.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "sender: " + senderName + ", receiver: " + receiverName +
+                ", method: " + className + "::" + methodName + ", parameters: " + parameterTypes.toString();
+    }
 }

@@ -1,5 +1,6 @@
 package org.bonbom;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bonbom.communication.ObjectReceiver;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethod;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public abstract class NetworkNode {
 
     private List<RemoteMethod> remoteMethods = new ArrayList<>();
@@ -22,6 +24,8 @@ public abstract class NetworkNode {
 
 
     public void onReceive(RemoteAnswer remoteAnswer) {
+        log.debug("Received RemoteAnswer: {}", remoteAnswer);
+
         if(!this.getName().equals(remoteAnswer.getReceiverName())) {
             send(remoteAnswer);
             return;
@@ -34,6 +38,8 @@ public abstract class NetworkNode {
     }
 
     public void onReceive(RemoteMethodCall remoteMethodCall) {
+        log.debug("Received RemoteMethodCall: {}", remoteMethodCall);
+
         if (!this.getName().equals(remoteMethodCall.getReceiverName())) {
             send(remoteMethodCall);
             return;
@@ -62,6 +68,8 @@ public abstract class NetworkNode {
     }
 
     public void registerMethods(Object instance, List<Method> methods) {
+        if (log.isDebugEnabled()) log.debug("Registering {} methods: {} ", instance.getClass().getName(), methods);
+
         for (Method method : methods) {
             remoteMethods.add(new RemoteMethod(instance, method));
         }
@@ -76,6 +84,8 @@ public abstract class NetworkNode {
     }
 
     public void registerMethods(Class interf, Object instance, List<Method> methods) {
+        if (log.isDebugEnabled()) log.debug("Registering methods from {} mapped to {}: {}", interf.getName(), instance.getClass().getName(), methods);
+
         for (Method method : methods) {
             remoteMethods.add(new RemoteMethod(interf.getName(), instance, method));
         }

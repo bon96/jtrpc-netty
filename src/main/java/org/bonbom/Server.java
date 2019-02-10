@@ -1,10 +1,8 @@
 package org.bonbom;
 
 import com.github.thorbenkuck.netcom2.network.server.ServerStart;
+import com.github.thorbenkuck.netcom2.network.shared.clients.Client;
 import lombok.extern.slf4j.Slf4j;
-import org.bonbom.commands.Command;
-import org.bonbom.commands.CommandImpl;
-import org.bonbom.commands.ServerInfo;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethodCall;
 import org.bonbom.communication.SessionRegistrationCall;
@@ -35,7 +33,13 @@ public abstract class Server extends NetworkNode {
 
                 this.serverStart.getCommunicationRegistration()
                         .register(SessionRegistrationCall.class)
-                        .addFirst((session, o) -> sessionManager.register(o.getName(), session));
+                        .addFirst((session, o) -> {
+                            sessionManager.register(o.getName(), session);
+                            this.serverStart.clientList().getClient(session)
+                                    .ifPresent((Client client ) ->
+                                            client.addDisconnectedHandler((Client client1) ->
+                                                    sessionManager.unRegister(client.getSession())));
+                        });
 
                 this.serverStart.getCommunicationRegistration()
                         .register(RemoteMethodCall.class)
@@ -45,6 +49,7 @@ public abstract class Server extends NetworkNode {
                         .register(RemoteAnswer.class)
                         .addFirst((session, o) -> onReceive(o));
 
+                log.info("Server is up and accepting clients");
                 this.serverStart.acceptAllNextClients();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -54,6 +59,8 @@ public abstract class Server extends NetworkNode {
 
     @Override
     public void send(RemoteMethodCall remoteMethodCall) {
+        log.debug("Sending RemoteMethodCall: {}", remoteMethodCall);
+
         if (sessionManager.contains(remoteMethodCall.getReceiverName())) {
             sessionManager.get(remoteMethodCall.getReceiverName()).send(remoteMethodCall);
             return;
@@ -63,6 +70,8 @@ public abstract class Server extends NetworkNode {
 
     @Override
     void send(RemoteAnswer remoteAnswer) {
+        log.debug("Sending remoteAnswer: {}", remoteAnswer);
+
         if (sessionManager.contains(remoteAnswer.getReceiverName())) {
             sessionManager.get(remoteAnswer.getReceiverName()).send(remoteAnswer);
             return;
@@ -72,6 +81,8 @@ public abstract class Server extends NetworkNode {
 
     @Override
     public Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException {
+        log.debug("Sending RemoteMethodCall and waiting for answer: {}", remoteMethodCall);
+
         if (sessionManager.contains(remoteMethodCall.getReceiverName())) {
             sessionManager.get(remoteMethodCall.getReceiverName()).send(remoteMethodCall);
             return getReceiver().get(remoteMethodCall.hashCode());

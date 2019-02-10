@@ -1,5 +1,7 @@
 package org.bonbom.communication;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import java.util.Map;
  * Time: 11.46
  */
 
+@Slf4j
 public class ObjectReceiver {
 
     private Map<Long, FutureReceive> receives = new HashMap<>();
@@ -23,6 +26,7 @@ public class ObjectReceiver {
     }
 
     public void onReceive(RemoteAnswer remoteAnswer) {
+        log.debug("Received RemoteAnswer: {}", remoteAnswer);
         if (!receives.containsKey(remoteAnswer.getId())) {
             receives.put(remoteAnswer.getId(), new FutureReceive());
         }

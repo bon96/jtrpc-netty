@@ -57,4 +57,9 @@ public class RemoteMethod {
     public int hashCode() { //hashCode should match RemoteMethodCall
         return getClassName().hashCode() + getMethodName().hashCode() + parameterTypes.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return className + "::" + methodName + ", " + parameterTypes.toString();
+    }
 }
