@@ -39,8 +39,11 @@ public abstract class Server extends NetworkNode {
                             sessionManager.register(o.getName(), session);
                             this.serverStart.clientList().getClient(session)
                                     .ifPresent((Client client ) ->
-                                            client.addDisconnectedHandler((Client client1) ->
-                                                    sessionManager.unRegister(client.getSession())));
+                                            client.addDisconnectedHandler((Client client1) -> {
+                                                String name = sessionManager.get(client.getSession());
+                                                sessionManager.unRegister(name);
+                                                onDisconnect(name);
+                                                    }));
                         });
 
                 this.serverStart.getCommunicationRegistration()
@@ -57,6 +60,10 @@ public abstract class Server extends NetworkNode {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    public void onDisconnect(String name) {
+
     }
 
     public void stop() {

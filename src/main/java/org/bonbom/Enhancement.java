@@ -41,7 +41,7 @@ public class Enhancement {
             return proxy.invokeSuper(obj, args1);
         }});
         Object instance = objenesis.newInstance(clazz);
-        instance.hashCode(); // hacky af. Some shit requires any method call to fix a weird bug
+        instance.hashCode(); // hacky af. Some shit requires any method call to fix a weird bug with JavaFX Platform.runLater
         return (T) instance;
     }
 }

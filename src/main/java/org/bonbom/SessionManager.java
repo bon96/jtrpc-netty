@@ -30,15 +30,20 @@ public class SessionManager {
     }
 
     public void unRegister(Session session) {
-        for (Map.Entry entry : sessionMap.entrySet()) {
-            if (entry.getValue().equals(session)) {
-                unRegister(entry.getKey().toString());
-            }
-        }
+        unRegister(get(session));
     }
 
     public Session get(String name) {
         return sessionMap.get(name);
+    }
+
+    public String get(Session session) {
+        for (Map.Entry entry : sessionMap.entrySet()) {
+            if (entry.getValue().equals(session)) {
+                return entry.getKey().toString();
+            }
+        }
+        return null;
     }
 
     public boolean contains(String name) {
