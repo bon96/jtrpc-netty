@@ -40,6 +40,8 @@ public class Enhancement {
             }
             return proxy.invokeSuper(obj, args1);
         }});
-        return (T) objenesis.newInstance(clazz);
+        Object instance = objenesis.newInstance(clazz);
+        instance.hashCode(); // hacky af. Some shit requires any method call to fix a weird bug
+        return (T) instance;
     }
 }
