@@ -12,26 +12,28 @@ public class ExampleClient extends Client {
 
     @Override
     public String getName() {
-        return "client001";
+        return "client1233";
     }
 
     public static void main(String[] args) throws Exception {
         Client client = new ExampleClient("localhost", 8080);
-        ServerInfo serverInfo = Enhancement.createProxy(client, ServerInfo.class);
-        System.out.println(serverInfo.getConnectedClients());
+        client.start();
+        ExampleServer exampleServer = Enhancement.createProxy(client, ExampleServer.class);
+        System.out.println(exampleServer.getConnectedClients());
     }
 
-    public static void main5(String[] args) throws Exception {
+    public static void main3(String[] args) throws Exception {
         Client client = new ExampleClient("localhost", 8080);
         client.registerMethods(Commands.class);
         Command command = Enhancement.createProxy(client, Command.class);
         long time = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             System.out.println(command.output("test"));
         }
         System.out.println(System.currentTimeMillis() - time);
-        while (true) {
-            Thread.sleep(500);
-        }
+    }
+
+    public static void main2(String[] args) {
+        System.out.println("statistics is null: " + "aa" == null);
     }
 }

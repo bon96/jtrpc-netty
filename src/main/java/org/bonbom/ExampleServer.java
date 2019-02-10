@@ -8,6 +8,7 @@ public class ExampleServer extends Server {
 
     public ExampleServer(int port) {
         super(port);
+        this.registerMethods(this);
     }
 
     @Override
@@ -17,7 +18,7 @@ public class ExampleServer extends Server {
 
     public static void main(String[] args) throws Exception {
         Server server = new ExampleServer(8080);
-        server.registerMethods(Command.class, CommandImpl.class);
-        server.registerMethods(new ServerInfo(server));
+        server.start();
+        server.registerMethods(server);
     }
 }

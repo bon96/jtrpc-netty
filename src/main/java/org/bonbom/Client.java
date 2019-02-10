@@ -1,5 +1,6 @@
 package org.bonbom;
 
+import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 import lombok.extern.slf4j.Slf4j;
@@ -21,28 +22,39 @@ public abstract class Client extends NetworkNode {
     private int port;
     private Sender sender;
     private ObjectReceiver receiver;
+    private ClientStart clientStart;
 
     public Client(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
         this.receiver = new ObjectReceiver();
+    }
 
-        ClientStart clientStart = ClientStart.at(host, port);
+    public void start() {
+        try {
+            clientStart = ClientStart.at(host, port);
 
-        clientStart.getCommunicationRegistration()
-                .register(RemoteAnswer.class)
-                .addFirst(this::onReceive);
+            clientStart.getCommunicationRegistration()
+                    .register(RemoteAnswer.class)
+                    .addFirst(this::onReceive);
 
-        clientStart.getCommunicationRegistration()
-                .register(RemoteMethodCall.class)
-                .addFirst(this::onReceive);
+            clientStart.getCommunicationRegistration()
+                    .register(RemoteMethodCall.class)
+                    .addFirst(this::onReceive);
 
-        clientStart.launch();
+            clientStart.launch();
 
-        this.sender = Sender.open(clientStart);
-        send(new SessionRegistrationCall(getName()));
+            this.sender = Sender.open(clientStart);
+            send(new SessionRegistrationCall(getName()));
 
-        log.info("Client is up and connected to server");
+            log.info("Client is up and connected to server");
+        } catch (StartFailedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stop() {
+        clientStart.softStop();
     }
 
     @Override

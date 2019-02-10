@@ -25,7 +25,9 @@ public abstract class Server extends NetworkNode {
     public Server(int port) {
         this.port = port;
         this.sessionManager = new SessionManager();
+    }
 
+    public void start() {
         new Thread(() -> {
             try {
                 this.serverStart = ServerStart.at(port);
@@ -55,6 +57,10 @@ public abstract class Server extends NetworkNode {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    public void stop() {
+        serverStart.softStop();
     }
 
     @Override
