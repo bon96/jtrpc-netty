@@ -40,7 +40,7 @@ public abstract class Server extends NetworkNode {
                         } catch (Exception ignored) {}
                     }
                 } else {
-                    this.serverStart = ServerStart.at(ThreadLocalRandom.current().nextInt(49152, 65535));
+                    this.serverStart = ServerStart.at(port);
                     this.serverStart.launch();
                 }
                 this.serverStart.getCommunicationRegistration()
