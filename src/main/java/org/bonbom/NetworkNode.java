@@ -45,34 +45,33 @@ public abstract class NetworkNode {
             return;
         }
 
-        for (RemoteMethod remoteMethod : getRegisteredMethods()) {
-            int hashCode = remoteMethod.hashCode();
-            if (remoteMethodCall.getParameterTypes().contains(null)) {
-                if (!remoteMethod.getClassName().equals(remoteMethodCall.getClassName())
-                        || !remoteMethod.getMethodName().equals(remoteMethodCall.getMethodName())
-                        || remoteMethod.getParameterTypes().size() != remoteMethodCall.getParameterTypes().size()) {
-                    continue;
+        RemoteMethod remoteMethod = getMatch(remoteMethodCall);
+        if (remoteMethod != null) {
+            try {
+                if (remoteMethod.getMethod().getReturnType().equals(void.class)) {
+                    remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects());
+                    return;
                 }
-                hashCode = remoteMethod.ignoreNullsHashCode(remoteMethodCall.getObjects());
+                RemoteAnswer answer = new RemoteAnswer(
+                        remoteMethodCall.getSenderName(),
+                        remoteMethodCall.hashCode(),
+                        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects()));
+                send(answer);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            if (hashCode == remoteMethodCall.hashCode()) {
-                try {
-                    if (remoteMethod.getMethod().getReturnType().equals(void.class)) {
-                        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects());
-                        return;
-                    }
-                    RemoteAnswer answer = new RemoteAnswer(
-                            remoteMethodCall.getSenderName(),
-                            remoteMethodCall.hashCode(),
-                            remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects()));
-                    send(answer);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return;
-            }
+            return;
         }
         log.error("No matches found for method " + remoteMethodCall.getClassName() + "::" + remoteMethodCall.getMethodName(), new IllegalArgumentException());
+    }
+
+    public RemoteMethod getMatch(RemoteMethodCall remoteMethodCall) {
+        for (RemoteMethod remoteMethod : getRegisteredMethods()) {
+            if (remoteMethod.match(remoteMethodCall)) {
+                return remoteMethod;
+            }
+        }
+        return null;
     }
 
     public void registerMethods(Object instance, List<Method> methods) {
@@ -95,7 +94,7 @@ public abstract class NetworkNode {
         if (log.isDebugEnabled()) log.debug("Registering methods from {} mapped to {}: {}", interf.getName(), instance.getClass().getName(), methods);
 
         for (Method method : methods) {
-            remoteMethods.add(new RemoteMethod(interf.getName(), instance, method));
+            remoteMethods.add(new RemoteMethod(interf, instance, method));
         }
     }
 

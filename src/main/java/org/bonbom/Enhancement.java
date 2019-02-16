@@ -18,11 +18,19 @@ public class Enhancement {
     private static Objenesis objenesis = new ObjenesisStd();
 
     public static <T> T createProxy(NetworkNode networkNode, Class proxyClass) {
-        return createProxy(networkNode, "server", proxyClass);
+        return createProxy(networkNode, proxyClass, false);
+    }
+
+    public static <T> T createProxy(NetworkNode networkNode, Class proxyClass, boolean ignorePath) {
+        return createProxy(networkNode, "server", proxyClass, ignorePath);
+    }
+
+    public static <T> T createProxy(NetworkNode networkNode, String clientName, Class proxyClass) {
+        return createProxy(networkNode, clientName, proxyClass, false);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T createProxy(NetworkNode networkNode, String clientName, Class proxyClass) {
+    public static <T> T createProxy(NetworkNode networkNode, String clientName, Class proxyClass, boolean ignorePath) {
         Enhancer enhancer = new Enhancer();
         enhancer.setUseCache(false);
         enhancer.setSuperclass(proxyClass);
@@ -31,7 +39,8 @@ public class Enhancement {
         Class clazz = enhancer.createClass();
         Enhancer.registerCallbacks(clazz, new Callback[]{(MethodInterceptor) (obj, method, args1, proxy) -> {
             if (method.getDeclaringClass() != Object.class) {
-                RemoteMethodCall remoteMethodCall = new RemoteMethodCall(networkNode.getName(), clientName, method.getDeclaringClass().getName(), method.getName(), args1);
+                RemoteMethodCall remoteMethodCall = new RemoteMethodCall(networkNode.getName(), clientName, method.getDeclaringClass(), method, args1);
+                remoteMethodCall.setCallBySimpleName(ignorePath);
                 if (method.getReturnType() == void.class) {
                     networkNode.send(remoteMethodCall);
                     return null;

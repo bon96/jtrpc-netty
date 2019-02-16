@@ -1,6 +1,7 @@
 package org.bonbom.communication;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,15 +18,18 @@ public class RemoteMethodCall implements Serializable {
     private String senderName;
     private String receiverName;
     private String className;
+    private String classNameSimple;
     private String methodName;
     private Object[] objects;
     private List<String> parameterTypes = new ArrayList<>();
+    private boolean callBySimpleName = false;
 
-    public RemoteMethodCall(String senderName, String receiverName, String className, String methodName, Object... objects) {
+    public RemoteMethodCall(String senderName, String receiverName, Class clazz, Method method, Object... objects) {
         this.senderName = senderName;
         this.receiverName = receiverName;
-        this.className = className;
-        this.methodName = methodName;
+        this.className = clazz.getName();
+        this.classNameSimple = clazz.getSimpleName();
+        this.methodName = method.getName();
         this.objects = objects;
 
         for (Object object : objects) {
@@ -49,6 +53,10 @@ public class RemoteMethodCall implements Serializable {
         return className;
     }
 
+    public String getClassNameSimple() {
+        return classNameSimple;
+    }
+
     public String getMethodName() {
         return methodName;
     }
@@ -61,8 +69,19 @@ public class RemoteMethodCall implements Serializable {
         return parameterTypes;
     }
 
+    public boolean isCallBySimpleName() {
+        return callBySimpleName;
+    }
+
+    public void setCallBySimpleName(boolean callBySimpleName) {
+        this.callBySimpleName = callBySimpleName;
+    }
+
     @Override
     public int hashCode() { //hashCode should match remoteMethod
+        if (isCallBySimpleName()) {
+            return classNameSimple.hashCode() + methodName.hashCode() + parameterTypes.hashCode();
+        }
         return className.hashCode() + methodName.hashCode() + parameterTypes.hashCode();
     }
 

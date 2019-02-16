@@ -1,5 +1,7 @@
 package org.bonbom.communication;
 
+import jdk.nashorn.internal.runtime.regexp.joni.constants.AsmConstants;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 public class RemoteMethod {
 
     private String className;
+    private String classNameSimple;
     private String methodName;
     private Object classInstance;
     private Method method;
@@ -20,6 +23,7 @@ public class RemoteMethod {
 
     public RemoteMethod(Object classInstance, Method method) {
         this.className = method.getDeclaringClass().getName();
+        this.classNameSimple = method.getDeclaringClass().getSimpleName();
         this.methodName = method.getName();
         this.classInstance = classInstance;
         this.method = method;
@@ -29,13 +33,18 @@ public class RemoteMethod {
         }
     }
 
-    public RemoteMethod(String interfaceName, Object implClassInstance, Method method) {
+    public RemoteMethod(Class interfaceClass, Object implClassInstance, Method method) {
         this(implClassInstance, method);
-        this.className = interfaceName;
+        this.className = interfaceClass.getName();
+        this.classNameSimple = interfaceClass.getSimpleName();
     }
 
     public String getClassName() {
         return className;
+    }
+
+    public String getClassNameSimple() {
+        return classNameSimple;
     }
 
     public String getMethodName() {
@@ -54,14 +63,20 @@ public class RemoteMethod {
         return classInstance;
     }
 
-    public int ignoreNullsHashCode(Object... objects) {
-        List<String> types = new ArrayList<>(this.parameterTypes);
-        for (int i = 0; i < objects.length; i++) {
-            if (objects[i] == null) {
-                types.set(i, null);
+
+    public boolean match(RemoteMethodCall remoteMethodCall) {
+        List<String> types = new ArrayList<>(parameterTypes);
+        if (parameterTypes.size() == remoteMethodCall.getParameterTypes().size()) {
+            for (int i = 0; i < parameterTypes.size(); i++) {
+                if (remoteMethodCall.getParameterTypes().get(i) == null) {
+                    types.set(i, null);
+                }
             }
         }
-        return getClassName().hashCode() + getMethodName().hashCode() + types.hashCode();
+        if (remoteMethodCall.isCallBySimpleName()) {
+            return remoteMethodCall.hashCode() == getClassNameSimple().hashCode() + getMethodName().hashCode() + types.hashCode();
+        }
+        return remoteMethodCall.hashCode() == getClassName().hashCode() + getMethodName().hashCode() + types.hashCode();
     }
 
     @Override
