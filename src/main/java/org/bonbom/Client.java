@@ -4,10 +4,7 @@ import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
 import com.github.thorbenkuck.netcom2.network.client.ClientStart;
 import com.github.thorbenkuck.netcom2.network.client.Sender;
 import lombok.extern.slf4j.Slf4j;
-import org.bonbom.communication.ObjectReceiver;
-import org.bonbom.communication.RemoteAnswer;
-import org.bonbom.communication.RemoteMethodCall;
-import org.bonbom.communication.SessionRegistrationCall;
+import org.bonbom.communication.*;
 
 /**
  * Tommi
@@ -93,6 +90,14 @@ public abstract class Client extends NetworkNode {
 
     public int getPort() {
         return port;
+    }
+
+    public long getTimeout() {
+        return FutureReceive.timeout;
+    }
+
+    public void setTimeout(long ms) {
+        FutureReceive.timeout = ms;
     }
 
 }

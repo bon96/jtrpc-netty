@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Slf4j
-class FutureReceive {
+public class FutureReceive {
 
     public static long timeout = 10000;
 
