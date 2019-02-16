@@ -12,6 +12,6 @@ public class CommandImpl implements Command {
     @Override
     public String output(String string) {
         count++;
-        return string + " " + count;
+        return string;
     }
 }

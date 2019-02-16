@@ -17,8 +17,8 @@ public class ExampleClient extends Client {
     public static void main(String[] args) throws Exception {
         Client client = new ExampleClient("localhost", 8080);
         client.start();
-        ExampleServer exampleServer = Enhancement.createProxy(client, ExampleServer.class);
-        System.out.println(exampleServer.getConnectedClients());
+        Command command = Enhancement.createProxy(client, Command.class);
+        System.out.println(command.output(null));
     }
 
     public static void main3(String[] args) throws Exception {

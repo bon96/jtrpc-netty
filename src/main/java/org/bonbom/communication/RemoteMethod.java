@@ -23,6 +23,7 @@ public class RemoteMethod {
         this.methodName = method.getName();
         this.classInstance = classInstance;
         this.method = method;
+
         for (Class clazz : method.getParameterTypes()) {
             parameterTypes.add(clazz.getName());
         }
@@ -51,6 +52,16 @@ public class RemoteMethod {
 
     public Object getClassInstance() {
         return classInstance;
+    }
+
+    public int ignoreNullsHashCode(Object... objects) {
+        List<String> types = new ArrayList<>(this.parameterTypes);
+        for (int i = 0; i < objects.length; i++) {
+            if (objects[i] == null) {
+                types.set(i, null);
+            }
+        }
+        return getClassName().hashCode() + getMethodName().hashCode() + types.hashCode();
     }
 
     @Override

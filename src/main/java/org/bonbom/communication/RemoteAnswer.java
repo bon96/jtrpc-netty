@@ -34,6 +34,6 @@ public class RemoteAnswer implements Serializable {
 
     @Override
     public String toString() {
-        return receiverName + ", " + id + ", " + object.toString();
+        return receiverName + ", " + id + ", " + (object == null ? null : object.toString());
     }
 }

@@ -46,7 +46,16 @@ public abstract class NetworkNode {
         }
 
         for (RemoteMethod remoteMethod : getRegisteredMethods()) {
-            if (remoteMethod.hashCode() == remoteMethodCall.hashCode()) {
+            int hashCode = remoteMethod.hashCode();
+            if (remoteMethodCall.getParameterTypes().contains(null)) {
+                if (!remoteMethod.getClassName().equals(remoteMethodCall.getClassName())
+                        || !remoteMethod.getMethodName().equals(remoteMethodCall.getMethodName())
+                        || remoteMethod.getParameterTypes().size() != remoteMethodCall.getParameterTypes().size()) {
+                    continue;
+                }
+                hashCode = remoteMethod.ignoreNullsHashCode(remoteMethodCall.getObjects());
+            }
+            if (hashCode == remoteMethodCall.hashCode()) {
                 try {
                     if (remoteMethod.getMethod().getReturnType().equals(void.class)) {
                         remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects());
@@ -63,8 +72,7 @@ public abstract class NetworkNode {
                 return;
             }
         }
-        throw new IllegalArgumentException("Method " + remoteMethodCall.getClassName() + "::" + remoteMethodCall.getMethodName()
-                + " is not registered!");
+        log.error("No matches found for method " + remoteMethodCall.getClassName() + "::" + remoteMethodCall.getMethodName(), new IllegalArgumentException());
     }
 
     public void registerMethods(Object instance, List<Method> methods) {

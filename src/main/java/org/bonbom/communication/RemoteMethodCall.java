@@ -29,6 +29,10 @@ public class RemoteMethodCall implements Serializable {
         this.objects = objects;
 
         for (Object object : objects) {
+            if (object == null) {
+                parameterTypes.add(null);        // try to match method without
+                continue;                       // knowledge of parameter type
+            }
             parameterTypes.add(object.getClass().getName());
         }
     }
