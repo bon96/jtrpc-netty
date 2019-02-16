@@ -7,6 +7,7 @@ import org.bonbom.communication.RemoteMethodCall;
 import org.bonbom.communication.SessionRegistrationCall;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Tommi
@@ -29,9 +30,19 @@ public abstract class Server extends NetworkNode {
     public void start() {
         new Thread(() -> {
             try {
-                this.serverStart = ServerStart.at(port);
-                this.serverStart.launch();
-
+                if (port == 0) {
+                    while (port == 0) {
+                        try {
+                            this.serverStart = ServerStart.at(ThreadLocalRandom.current().nextInt(49152, 65535));
+                            this.serverStart.launch();
+                            port = serverStart.getPort();
+                            break;
+                        } catch (Exception ignored) {}
+                    }
+                } else {
+                    this.serverStart = ServerStart.at(ThreadLocalRandom.current().nextInt(49152, 65535));
+                    this.serverStart.launch();
+                }
                 this.serverStart.getCommunicationRegistration()
                         .register(SessionRegistrationCall.class)
                         .addFirst((session, o) -> {
@@ -44,7 +55,6 @@ public abstract class Server extends NetworkNode {
                                                 onDisconnect(name);
                                                     }));
                         });
-
                 this.serverStart.getCommunicationRegistration()
                         .register(RemoteMethodCall.class)
                         .addFirst((session, o) -> onReceive(o));
@@ -103,7 +113,7 @@ public abstract class Server extends NetworkNode {
     }
 
     public int getPort() {
-        if (serverStart != null) return serverStart.getPort();
+        if (serverStart != null) return port;
         return -1;
     }
 
