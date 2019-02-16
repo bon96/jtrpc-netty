@@ -103,7 +103,8 @@ public abstract class Server extends NetworkNode {
     }
 
     public int getPort() {
-        return port;
+        if (serverStart != null) return serverStart.getPort();
+        return -1;
     }
 
     public List<String> getConnectedClients() {

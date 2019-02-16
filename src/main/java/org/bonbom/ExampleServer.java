@@ -20,8 +20,9 @@ public class ExampleServer extends Server {
     }
 
     public static void main(String[] args) throws Exception {
-        Server server = new ExampleServer(8080);
+        Server server = new ExampleServer(0);
         server.start();
+        System.out.println(server.getPort());
         server.registerMethods(Command.class, CommandImpl.class);
     }
 }
