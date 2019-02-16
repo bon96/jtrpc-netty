@@ -1,7 +1,5 @@
 package org.bonbom.communication;
 
-import jdk.nashorn.internal.runtime.regexp.joni.constants.AsmConstants;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +26,8 @@ public class RemoteMethod {
         this.classInstance = classInstance;
         this.method = method;
 
-        for (Class clazz : method.getParameterTypes()) {
-            parameterTypes.add(clazz.getName());
+        for (Class c : method.getParameterTypes()) {
+            parameterTypes.add(c.getName());
         }
     }
 
@@ -65,18 +63,11 @@ public class RemoteMethod {
 
 
     public boolean match(RemoteMethodCall remoteMethodCall) {
-        List<String> types = new ArrayList<>(parameterTypes);
-        if (parameterTypes.size() == remoteMethodCall.getParameterTypes().size()) {
-            for (int i = 0; i < parameterTypes.size(); i++) {
-                if (remoteMethodCall.getParameterTypes().get(i) == null) {
-                    types.set(i, null);
-                }
-            }
-        }
         if (remoteMethodCall.isCallBySimpleName()) {
-            return remoteMethodCall.hashCode() == getClassNameSimple().hashCode() + getMethodName().hashCode() + types.hashCode();
+            return remoteMethodCall.hashCode() == getClassNameSimple().hashCode()
+                    + getMethodName().hashCode() + parameterTypes.hashCode();
         }
-        return remoteMethodCall.hashCode() == getClassName().hashCode() + getMethodName().hashCode() + types.hashCode();
+        return remoteMethodCall.hashCode() == hashCode();
     }
 
     @Override
