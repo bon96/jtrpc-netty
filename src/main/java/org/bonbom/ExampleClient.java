@@ -2,11 +2,16 @@ package org.bonbom;
 
 import org.bonbom.commands.Command;
 import org.bonbom.commands.Commands;
+import org.bonbom.commands.ServerInfo;
 
 public class ExampleClient extends Client {
 
+    public ServerInfo serverInfo;
+
     public ExampleClient(String host, int port) throws Exception {
         super(host, port);
+        this.start();
+        serverInfo = Enhancement.createProxy(this, ServerInfo.class, false);
     }
 
     @Override
@@ -16,9 +21,7 @@ public class ExampleClient extends Client {
 
     public static void main(String[] args) throws Exception {
         Client client = new ExampleClient("localhost", 8080);
-        client.start();
-        Command command = Enhancement.createProxy(client, Command.class, true);
-        System.out.println(command.output(null));
+        System.out.println(((ExampleClient) client).serverInfo.sendBack("test230", "test32"));
     }
 
     public static void main3(String[] args) throws Exception {

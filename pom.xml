@@ -6,7 +6,7 @@
 
     <groupId>org.bonbom</groupId>
     <artifactId>jtrpc</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <build>
         <plugins>
             <plugin>
@@ -49,11 +49,6 @@
             <version>1.7.12</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.12</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.4</version>
@@ -65,6 +60,4 @@
             <version>3.0.1</version>
         </dependency>
     </dependencies>
-
-
 </project>

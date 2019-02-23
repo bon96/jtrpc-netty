@@ -11,7 +11,7 @@ import java.util.List;
  * Time: 18.54
  */
 
-public class ServerInfo {
+public class ServerInfo extends Commands {
 
     private Server server;
 

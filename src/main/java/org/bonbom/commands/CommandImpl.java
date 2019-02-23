@@ -14,4 +14,9 @@ public class CommandImpl implements Command {
         count++;
         return string;
     }
+
+    @Override
+    public String output1(String string) {
+        return string + 1;
+    }
 }
