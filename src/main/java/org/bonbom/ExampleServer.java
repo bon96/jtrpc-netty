@@ -10,11 +10,6 @@ public class ExampleServer extends Server {
         this.registerMethods(this);
     }
 
-    @Override
-    public String getName() {
-        return "server";
-    }
-
     public static void main(String[] args) throws Exception {
         Server server = new ExampleServer(8080);
         server.start();

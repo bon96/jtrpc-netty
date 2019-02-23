@@ -87,7 +87,7 @@ public abstract class Server extends NetworkNode {
             sessionManager.get(remoteMethodCall.getReceiverName()).send(remoteMethodCall);
             return;
         }
-        throw new RuntimeException("No session for " + remoteMethodCall.getReceiverName());
+        throw new RuntimeException("No session for client named \"" + remoteMethodCall.getReceiverName() + "\"");
     }
 
     @Override
@@ -115,6 +115,12 @@ public abstract class Server extends NetworkNode {
     public int getPort() {
         if (serverStart != null) return port;
         return -1;
+    }
+
+
+    @Override
+    public String getName() {
+        return "server";
     }
 
     public List<String> getConnectedClients() {
