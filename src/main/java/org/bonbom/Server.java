@@ -32,7 +32,7 @@ public abstract class Server extends NetworkNode {
             try {
                 if (port == 0) {
                     while (port == 0) {
-                        try {
+                        try { //find a free port
                             this.serverStart = ServerStart.at(ThreadLocalRandom.current().nextInt(49152, 65535));
                             this.serverStart.launch();
                             port = serverStart.getPort();
@@ -43,18 +43,20 @@ public abstract class Server extends NetworkNode {
                     this.serverStart = ServerStart.at(port);
                     this.serverStart.launch();
                 }
+
                 this.serverStart.getCommunicationRegistration()
                         .register(SessionRegistrationCall.class)
                         .addFirst((session, o) -> {
                             sessionManager.register(o.getName(), session);
                             this.serverStart.clientList().getClient(session)
-                                    .ifPresent(client ->
-                                            client.addDisconnectedHandler(client1 -> {
-                                                String name = sessionManager.get(client.getSession());
+                                    .ifPresent(c1 ->
+                                            c1.addDisconnectedHandler(c2 -> {
+                                                String name = sessionManager.get(c1.getSession());
                                                 sessionManager.unRegister(name);
                                                 onDisconnect(name);
                                                     }));
                         });
+
                 this.serverStart.getCommunicationRegistration()
                         .register(RemoteMethodCall.class)
                         .addFirst((session, o) -> onReceive(o));

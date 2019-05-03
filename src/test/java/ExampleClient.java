@@ -1,6 +1,6 @@
-package org.bonbom;
-
-import org.bonbom.commands.ServerInfo;
+import org.bonbom.Client;
+import org.bonbom.Enhancement;
+import commands.ServerInfo;
 
 public class ExampleClient extends Client {
 

@@ -1,4 +1,4 @@
-package org.bonbom.commands;
+package commands;
 
 /**
  * Tommi

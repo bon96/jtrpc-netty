@@ -15,7 +15,7 @@ import org.objenesis.ObjenesisStd;
 
 public class Enhancement {
 
-    private static Objenesis objenesis = new ObjenesisStd();
+    private static final Objenesis objenesis = new ObjenesisStd();
 
     public static <T> T createProxy(NetworkNode networkNode, Class proxyClass) {
         return createProxy(networkNode, proxyClass, false);

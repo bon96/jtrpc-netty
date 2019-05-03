@@ -1,6 +1,5 @@
-package org.bonbom;
-
-import org.bonbom.commands.ServerInfo;
+import org.bonbom.Server;
+import commands.ServerInfo;
 
 public class ExampleServer extends Server {
 

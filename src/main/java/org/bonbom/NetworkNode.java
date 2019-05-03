@@ -18,6 +18,7 @@ public abstract class NetworkNode {
     private ObjectReceiver receiver = new ObjectReceiver();
 
     public abstract String getName();
+
     abstract void send(RemoteMethodCall remoteMethodCall);
     abstract void send(RemoteAnswer remoteAnswer);
     abstract Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException;

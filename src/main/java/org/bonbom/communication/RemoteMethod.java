@@ -61,7 +61,6 @@ public class RemoteMethod {
         return classInstance;
     }
 
-
     public boolean match(RemoteMethodCall remoteMethodCall) {
         if (remoteMethodCall.isCallBySimpleName()) {
             return remoteMethodCall.hashCode() == getClassNameSimple().hashCode()
