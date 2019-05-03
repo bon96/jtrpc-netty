@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 
 @Slf4j
-public abstract class Server extends NetworkNode {
+public class Server extends NetworkNode {
 
     private int port;
     private SessionManager sessionManager;

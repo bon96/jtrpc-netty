@@ -1,15 +1,16 @@
+import commands.Command;
+import commands.CommandImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.bonbom.Server;
-import commands.ServerInfo;
 
-public class ExampleServer extends Server {
 
-    public ExampleServer(int port) {
-        super(port);
-    }
+public class ExampleServer {
 
     public static void main(String[] args) throws Exception {
-        ExampleServer server = new ExampleServer(8080);
+        Server server = new Server(8080);
         server.start();
-        server.registerMethods(new ServerInfo(server));
+        server.registerMethods(Command.class, CommandImpl.class);
     }
 }
+
+

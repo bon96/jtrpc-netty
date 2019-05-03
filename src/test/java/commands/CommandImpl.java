@@ -2,20 +2,17 @@ package commands;
 
 /**
  * Tommi
- * Date: 28.1.2019
- * Time: 15.54
+ * Date: 3.5.2019
+ * Time: 22.58
  */
 
 public class CommandImpl implements Command {
 
-    private static int count = 0;
     @Override
-    public String output(String string) {
-        return string + count++;
-    }
-
-    @Override
-    public String output1(String string) {
-        return string + 1;
+    public String sayHiToServer() {
+        return "Server says hi!";
     }
 }
+
+
+

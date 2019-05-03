@@ -6,6 +6,8 @@ import com.github.thorbenkuck.netcom2.network.client.Sender;
 import lombok.extern.slf4j.Slf4j;
 import org.bonbom.communication.*;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * Tommi
  * Date: 13.1.2019
@@ -13,18 +15,20 @@ import org.bonbom.communication.*;
  */
 
 @Slf4j
-public abstract class Client extends NetworkNode {
+public class Client extends NetworkNode {
 
     private String host;
     private int port;
     private Sender sender;
     private ObjectReceiver receiver;
     private ClientStart clientStart;
+    private String name;
 
     public Client(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
         this.receiver = new ObjectReceiver();
+        this.name = "client" + ThreadLocalRandom.current().nextInt();
     }
 
     public void start() {
@@ -58,6 +62,11 @@ public abstract class Client extends NetworkNode {
 
     public void stop() {
         clientStart.softStop();
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
