@@ -142,7 +142,6 @@ public class Server extends NetworkNode {
         return port;
     }
 
-
     @Override
     public String getName() {
         return "server";
@@ -155,14 +154,4 @@ public class Server extends NetworkNode {
     public List<String> getConnectedClients() {
         return sessionManager.getSessionNames();
     }
-
-    public static void main(String[] args) {
-        Server server = new Server(8080);
-        try {
-            server.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }

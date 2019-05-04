@@ -126,7 +126,6 @@ public class Client extends NetworkNode {
         channel.writeAndFlush(sessionRegistrationCall);
     }
 
-
     @Override
     public Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException {
         logger.debug("Sending RemoteMethodCall and waiting for answer: {}", remoteMethodCall);
@@ -149,14 +148,4 @@ public class Client extends NetworkNode {
     public void setTimeout(long ms) {
         FutureReceive.timeout = ms;
     }
-
-    public static void main(String[] args) {
-        Client client = new Client("localhost", 8080);
-        try {
-            client.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }
