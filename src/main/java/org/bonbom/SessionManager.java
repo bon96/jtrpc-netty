@@ -1,7 +1,6 @@
 package org.bonbom;
-
-import com.github.thorbenkuck.netcom2.network.shared.Session;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,32 +13,35 @@ import java.util.Map;
  * Time: 23.55
  */
 
-@Slf4j
-public class SessionManager {
 
-    private Map<String, Session> sessionMap = new HashMap<>();
+public class SessionManager<T> {
 
-    public void register(String name, Session session) {
-        log.debug("Registering client {}", name);
-        sessionMap.put(name, session);
+    private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
+
+    private Map<String, T> sessionMap = new HashMap<>();
+
+    public void register(String name, T t) {
+        System.out.println("registered");
+        logger.debug("Registering client {}", name);
+        sessionMap.put(name, t);
     }
 
     public void unRegister(String name) {
-        log.debug("Unregistering client {}", name);
+        logger.debug("Unregistering client {}", name);
         sessionMap.remove(name);
     }
 
-    public void unRegister(Session session) {
-        unRegister(get(session));
+    public void unRegister(T t) {
+        unRegister(get(t));
     }
 
-    public Session get(String name) {
+    public T get(String name) {
         return sessionMap.get(name);
     }
 
-    public String get(Session session) {
+    public String get(T t) {
         for (Map.Entry entry : sessionMap.entrySet()) {
-            if (entry.getValue().equals(session)) {
+            if (entry.getValue().equals(t)) {
                 return entry.getKey().toString();
             }
         }
@@ -50,8 +52,8 @@ public class SessionManager {
         return sessionMap.containsKey(name);
     }
 
-    public boolean contains(Session session) {
-        return sessionMap.containsValue(session);
+    public boolean contains(T t) {
+        return sessionMap.containsValue(t);
     }
 
     public List<String> getSessionNames() {

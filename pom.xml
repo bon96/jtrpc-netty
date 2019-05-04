@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.bonbom</groupId>
-    <artifactId>jtrpc</artifactId>
-    <version>1.1</version>
+    <artifactId>jtrpc-netty</artifactId>
+    <version>1.2</version>
     <build>
         <plugins>
             <plugin>
@@ -28,11 +28,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.thorbenkuck</groupId>
-            <artifactId>NetCom2</artifactId>
-            <version>2.0</version>
-        </dependency>
-        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>3.2.4</version>
@@ -49,15 +44,15 @@
             <version>1.7.25</version>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.objenesis</groupId>
             <artifactId>objenesis</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.36.Final</version>
+        </dependency>
+
     </dependencies>
 </project>

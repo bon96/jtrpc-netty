@@ -1,10 +1,19 @@
 package org.bonbom;
 
-import com.github.thorbenkuck.netcom2.exceptions.StartFailedException;
-import com.github.thorbenkuck.netcom2.network.client.ClientStart;
-import com.github.thorbenkuck.netcom2.network.client.Sender;
-import lombok.extern.slf4j.Slf4j;
-import org.bonbom.communication.*;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
+import org.bonbom.communication.FutureReceive;
+import org.bonbom.communication.RemoteAnswer;
+import org.bonbom.communication.RemoteMethodCall;
+import org.bonbom.communication.SessionRegistrationCall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,54 +23,85 @@ import java.util.concurrent.ThreadLocalRandom;
  * Time: 17.38
  */
 
-@Slf4j
 public class Client extends NetworkNode {
+
+    private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
     private String host;
     private int port;
-    private Sender sender;
-    private ObjectReceiver receiver;
-    private ClientStart clientStart;
     private String name;
 
-    public Client(String host, int port) throws Exception {
+    private EventLoopGroup group;
+    private Channel channel;
+
+    public Client(String host, int port) {
         this.host = host;
         this.port = port;
-        this.receiver = new ObjectReceiver();
         this.name = "client" + ThreadLocalRandom.current().nextInt();
     }
 
-    public void start() {
+    public void start() throws Exception {
+        group = new NioEventLoopGroup();
+
         try {
-            clientStart = ClientStart.at(host, port);
+            Bootstrap b = new Bootstrap();
+            b.group(group)
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<SocketChannel>() {
 
-            clientStart.getCommunicationRegistration()
-                    .register(RemoteAnswer.class)
-                    .addFirst(this::onReceive);
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(new ObjectEncoder());
+                            ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())));
+                            ch.pipeline().addLast(new SimpleChannelInboundHandler<Object>() {
 
-            clientStart.getCommunicationRegistration()
-                    .register(RemoteMethodCall.class)
-                    .addFirst(this::onReceive);
+                                @Override
+                                public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                    ctx.writeAndFlush(new SessionRegistrationCall(getName()));
+                                }
 
-            clientStart.addDisconnectedHandler(client -> onDisconnect());
+                                @Override
+                                protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
+                                    if (o instanceof RemoteAnswer) {
+                                        onReceive((RemoteAnswer) o, ctx);
+                                    }
 
-            clientStart.launch();
+                                    if (o instanceof RemoteMethodCall) {
+                                        onReceive((RemoteMethodCall) o, ctx);
+                                    }
+                                }
 
-            this.sender = Sender.open(clientStart);
-            send(new SessionRegistrationCall(getName()));
+                                @Override
+                                public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                                    cause.printStackTrace();
+                                    ctx.close();
+                                }
+                            });
 
-            log.info("Client is up and connected to server");
-        } catch (StartFailedException e) {
-            e.printStackTrace();
+                            ch.closeFuture().addListener((ChannelFutureListener) channelFuture -> onDisconnect());
+                        }
+                    });
+
+
+
+            ChannelFuture f = b.connect(host, port).sync();
+
+            channel = f.channel();
+
+            logger.info("Client is up and connected to server");
+
+            f.channel().closeFuture().sync();
+        } finally {
+            stop();
         }
     }
 
     public void onDisconnect() {
-        log.warn("Lost connection to server");
+        logger.warn("Lost connection to server");
     }
 
     public void stop() {
-        clientStart.softStop();
+        group.shutdownGracefully();
     }
 
     @Override
@@ -71,25 +111,26 @@ public class Client extends NetworkNode {
 
     @Override
     public void send(RemoteMethodCall remoteMethodCall) {
-        log.debug("Sending RemoteMethodCall: {}", remoteMethodCall);
-        sender.objectToServer(remoteMethodCall);
+        logger.debug("Sending RemoteMethodCall: {}", remoteMethodCall);
+        channel.writeAndFlush(remoteMethodCall);
     }
 
     @Override
     public void send(RemoteAnswer remoteAnswer) {
-        log.debug("Sending remoteAnswer: {}", remoteAnswer);
-        sender.objectToServer(remoteAnswer);
+        logger.debug("Sending remoteAnswer: {}", remoteAnswer);
+        channel.writeAndFlush(remoteAnswer);
     }
 
     public void send(SessionRegistrationCall sessionRegistrationCall) {
-        log.debug("Sending SessionRegistrationCall: {}", sessionRegistrationCall);
-        sender.objectToServer(sessionRegistrationCall);
+        logger.debug("Sending SessionRegistrationCall: {}", sessionRegistrationCall);
+        channel.writeAndFlush(sessionRegistrationCall);
     }
+
 
     @Override
     public Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException {
-        log.debug("Sending RemoteMethodCall and waiting for answer: {}", remoteMethodCall);
-        sender.objectToServer(remoteMethodCall);
+        logger.debug("Sending RemoteMethodCall and waiting for answer: {}", remoteMethodCall);
+        channel.writeAndFlush(remoteMethodCall);
         return getReceiver().get(remoteMethodCall.hashCode());
     }
 
@@ -107,6 +148,15 @@ public class Client extends NetworkNode {
 
     public void setTimeout(long ms) {
         FutureReceive.timeout = ms;
+    }
+
+    public static void main(String[] args) {
+        Client client = new Client("localhost", 8080);
+        try {
+            client.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

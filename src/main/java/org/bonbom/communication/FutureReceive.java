@@ -1,6 +1,7 @@
 package org.bonbom.communication;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -11,8 +12,9 @@ import java.util.concurrent.TimeUnit;
  * Time: 11.30
  */
 
-@Slf4j
 public class FutureReceive {
+
+    private static final Logger logger = LoggerFactory.getLogger(FutureReceive.class);
 
     public static long timeout = 10000;
 
@@ -22,7 +24,7 @@ public class FutureReceive {
 
     Object get() throws InterruptedException {
         if (!received) {
-            log.debug("Waiting for object");
+            logger.debug("Waiting for object");
             synchronized (latch) {
                 latch.await(timeout, TimeUnit.MILLISECONDS);
             }
@@ -31,7 +33,7 @@ public class FutureReceive {
     }
 
     void receive(Object object) {
-        log.debug("Received {}", object);
+        logger.debug("Received {}", object);
         this.receivedObject = object;
         this.received = true;
         latch.countDown();
