@@ -8,6 +8,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.bonbom.communication.FutureReceive;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethodCall;
@@ -53,7 +55,7 @@ public class Client extends NetworkNode {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new ObjectEncoder());
                             ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())));
-                            ch.pipeline().addLast(new SimpleChannelInboundHandler<Object>() {
+                            ch.pipeline().addLast(new SimpleChannelInboundHandler() {
 
                                 @Override
                                 public void channelActive(ChannelHandlerContext ctx) throws Exception {
