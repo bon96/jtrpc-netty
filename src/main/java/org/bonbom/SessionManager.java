@@ -21,7 +21,6 @@ public class SessionManager<T> {
     private Map<String, T> sessionMap = new HashMap<>();
 
     public void register(String name, T t) {
-        System.out.println("registered");
         logger.debug("Registering client {}", name);
         sessionMap.put(name, t);
     }

@@ -49,56 +49,61 @@ public class Server extends NetworkNode {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
 
-        try {
-            ServerBootstrap bootstrap = new ServerBootstrap();
+        ServerBootstrap bootstrap = new ServerBootstrap();
 
-            bootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new ObjectEncoder());
-                            ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())));
-                            ch.pipeline().addLast(new SimpleChannelInboundHandler() {
+        bootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new ObjectEncoder());
+                        ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())));
+                        ch.pipeline().addLast(new SimpleChannelInboundHandler() {
 
-                                @Override
-                                protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
-                                    if (o instanceof SessionRegistrationCall) {
-                                        sessionManager.register(((SessionRegistrationCall) o).getName(), ctx.channel());
-                                        logger.debug("Registered " + ((SessionRegistrationCall) o).getName());
-                                    }
-
-                                    if (o instanceof RemoteAnswer) {
-                                        onReceive((RemoteAnswer) o);
-                                    }
-
-                                    if (o instanceof RemoteMethodCall) {
-                                        onReceive((RemoteMethodCall) o);
-                                    }
+                            @Override
+                            protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
+                                if (o instanceof SessionRegistrationCall) {
+                                    sessionManager.register(((SessionRegistrationCall) o).getName(), ctx.channel());
+                                    logger.debug("Registered " + ((SessionRegistrationCall) o).getName());
                                 }
 
-                                @Override
-                                public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-                                    cause.printStackTrace();
-                                    ctx.close();
+                                if (o instanceof RemoteAnswer) {
+                                    onReceive((RemoteAnswer) o);
                                 }
-                            });
 
-                            ch.closeFuture().addListener((ChannelFutureListener) channelFuture ->
-                                    onDisconnect(sessionManager.get(ch)));
-                        }
-                    });
-            ChannelFuture future = bootstrap.bind(port).sync();
+                                if (o instanceof RemoteMethodCall) {
+                                    onReceive((RemoteMethodCall) o);
+                                }
+                            }
 
-            if (port == 0) {
-                port = ((InetSocketAddress) future.channel().localAddress()).getPort();
-            }
+                            @Override
+                            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                                cause.printStackTrace();
+                                ctx.close();
+                            }
+                        });
 
-            future.channel().closeFuture().sync();
-        } finally {
-            stop();
+                        ch.closeFuture().addListener((ChannelFutureListener) channelFuture ->
+                                onDisconnect(sessionManager.get(ch)));
+                    }
+                });
+
+        ChannelFuture future = bootstrap.bind(port).sync();
+
+        if (port == 0) {
+            port = ((InetSocketAddress) future.channel().localAddress()).getPort();
         }
+
+        new Thread(() -> {
+            try {
+                future.channel().closeFuture().sync();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                stop();
+            }
+        }).start();
     }
 
     public void onDisconnect(String name) {

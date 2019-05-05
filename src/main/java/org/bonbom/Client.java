@@ -40,57 +40,58 @@ public class Client extends NetworkNode {
     public void start() throws Exception {
         group = new NioEventLoopGroup();
 
-        try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(group)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
 
-                        @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new ObjectEncoder());
-                            ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())));
-                            ch.pipeline().addLast(new SimpleChannelInboundHandler() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new ObjectEncoder());
+                        ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())));
+                        ch.pipeline().addLast(new SimpleChannelInboundHandler() {
 
-                                @Override
-                                public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                    ctx.writeAndFlush(new SessionRegistrationCall(getName()));
+                            @Override
+                            public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                ctx.writeAndFlush(new SessionRegistrationCall(getName()));
+                            }
+
+                            @Override
+                            protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
+                                if (o instanceof RemoteAnswer) {
+                                    onReceive((RemoteAnswer) o);
                                 }
 
-                                @Override
-                                protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
-                                    if (o instanceof RemoteAnswer) {
-                                        onReceive((RemoteAnswer) o);
-                                    }
-
-                                    if (o instanceof RemoteMethodCall) {
-                                        onReceive((RemoteMethodCall) o);
-                                    }
+                                if (o instanceof RemoteMethodCall) {
+                                    onReceive((RemoteMethodCall) o);
                                 }
+                            }
 
-                                @Override
-                                public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-                                    cause.printStackTrace();
-                                    ctx.close();
-                                }
-                            });
+                            @Override
+                            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                                cause.printStackTrace();
+                                ctx.close();
+                            }
+                        });
 
-                            ch.closeFuture().addListener((ChannelFutureListener) channelFuture -> onDisconnect());
-                        }
-                    });
+                        ch.closeFuture().addListener((ChannelFutureListener) channelFuture -> onDisconnect());
+                    }
+                });
 
+        ChannelFuture future = bootstrap.connect(host, port).sync();
 
+        channel = future.channel();
+        logger.info("Client is up and connected to server");
 
-            ChannelFuture future = bootstrap.connect(host, port).sync();
-
-            channel = future.channel();
-
-            logger.info("Client is up and connected to server");
-
-            future.channel().closeFuture().sync();
-        } finally {
-            stop();
-        }
+        new Thread(() -> {
+            try {
+                future.channel().closeFuture().sync();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                stop();
+            }
+        }).start();
     }
 
     public void onDisconnect() {
