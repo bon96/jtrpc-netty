@@ -82,7 +82,7 @@ public class RemoteMethodCall implements RemoteObject {
         return id;
     }
 
-    @Override //TODO is there a better way?
+    @Override
     public int hashCode() { //hashCode should match remoteMethod
         if (isCallBySimpleName()) {
             return classNameSimple.hashCode() + methodName.hashCode() + parameterTypes.hashCode();

@@ -61,6 +61,7 @@ public class RemoteMethod {
         return classInstance;
     }
 
+    //TODO is there a better way?
     public boolean match(RemoteMethodCall remoteMethodCall) {
         if (remoteMethodCall.isCallBySimpleName()) {
             return remoteMethodCall.hashCode() == getClassNameSimple().hashCode()
@@ -69,7 +70,7 @@ public class RemoteMethod {
         return remoteMethodCall.hashCode() == hashCode();
     }
 
-    @Override //TODO is there a better way?
+    @Override
     public int hashCode() { //hashCode should match RemoteMethodCall
         return getClassName().hashCode() + getMethodName().hashCode() + parameterTypes.hashCode();
     }
