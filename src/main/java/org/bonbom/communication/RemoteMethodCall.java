@@ -3,6 +3,7 @@ package org.bonbom.communication;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Tommi
@@ -19,9 +20,13 @@ public class RemoteMethodCall implements RemoteObject {
     private String className;
     private String classNameSimple;
     private String methodName;
+
     private Object[] objects;
     private List<String> parameterTypes = new ArrayList<>();
+
     private boolean callBySimpleName = false;
+
+    private long id;
 
     public RemoteMethodCall(String senderName, String receiverName, Class clazz, Method method, Object... objects) {
         this.senderName = senderName;
@@ -30,6 +35,7 @@ public class RemoteMethodCall implements RemoteObject {
         this.classNameSimple = clazz.getSimpleName();
         this.methodName = method.getName();
         this.objects = objects;
+        this.id = ThreadLocalRandom.current().nextLong();
 
         for (Class c : method.getParameterTypes()) {
             parameterTypes.add(c.getName());
@@ -70,6 +76,10 @@ public class RemoteMethodCall implements RemoteObject {
 
     public void setCallBySimpleName(boolean callBySimpleName) {
         this.callBySimpleName = callBySimpleName;
+    }
+
+    public long getId() {
+        return id;
     }
 
     @Override //TODO is there a better way?

@@ -117,7 +117,7 @@ public class Client extends NetworkNode {
     public Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException {
         logger.debug("Sending RemoteMethodCall and waiting for answer: {}", remoteMethodCall);
         channel.writeAndFlush(remoteMethodCall);
-        return getReceiver().get(remoteMethodCall.hashCode());
+        return getReceiver().get(remoteMethodCall.getId());
     }
 
     public <T> T createProxy(Class proxyClass) {
@@ -137,10 +137,10 @@ public class Client extends NetworkNode {
     }
 
     public long getTimeout() {
-        return FutureReceive.timeout;
+        return ObjectReceiver.TIMEOUT;
     }
 
     public void setTimeout(long ms) {
-        FutureReceive.timeout = ms;
+        ObjectReceiver.TIMEOUT = ms;
     }
 }

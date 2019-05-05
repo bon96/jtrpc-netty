@@ -3,9 +3,9 @@ package org.bonbom.communication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Tommi
@@ -16,24 +16,18 @@ import java.util.Map;
 //TODO is there a better way?
 public class ObjectReceiver {
 
+    public static long TIMEOUT = 10000;
+
     private static final Logger logger = LoggerFactory.getLogger(ObjectReceiver.class);
 
-    private Map<Long, FutureReceive> receives = new HashMap<>();
+    private final BlockingHashMap<Long, Object> receives = new BlockingHashMap<>();
 
     public Object get(long id) throws InterruptedException {
-        if (!receives.containsKey(id)) {
-            receives.put(id, new FutureReceive());
-        }
-        Object received = receives.get(id).get();
-        receives.remove(id);
-        return received;
+        return receives.take(id, TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     public void onReceive(RemoteAnswer remoteAnswer) {
         logger.debug("Received RemoteAnswer: {}", remoteAnswer);
-        if (!receives.containsKey(remoteAnswer.getId())) {
-            receives.put(remoteAnswer.getId(), new FutureReceive());
-        }
-        receives.get(remoteAnswer.getId()).receive(remoteAnswer.getObject());
+        receives.put(remoteAnswer.getId(), remoteAnswer.getObject());
     }
 }

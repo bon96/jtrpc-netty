@@ -133,7 +133,7 @@ public class Server extends NetworkNode {
 
         if (sessionManager.contains(remoteMethodCall.getReceiverName())) {
             sessionManager.get(remoteMethodCall.getReceiverName()).writeAndFlush(remoteMethodCall);
-            return getReceiver().get(remoteMethodCall.hashCode());
+            return getReceiver().get(remoteMethodCall.getId());
         }
         throw new RuntimeException("No session for " + remoteMethodCall.getReceiverName());
     }

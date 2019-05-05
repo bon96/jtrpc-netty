@@ -8,9 +8,11 @@ package commands;
 
 public class CommandImpl implements Command {
 
+    int i = 0;
+
     @Override
     public String sayHiToServer() {
-        return "Server says hi!";
+        return String.valueOf(i++);
     }
 }
 

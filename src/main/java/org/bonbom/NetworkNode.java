@@ -59,7 +59,7 @@ public abstract class NetworkNode {
                 }
                 RemoteAnswer answer = new RemoteAnswer(
                         remoteMethodCall.getSenderName(),
-                        remoteMethodCall.hashCode(),
+                        remoteMethodCall.getId(),
                         remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects()));
                 send(answer);
             } catch (Exception e) {

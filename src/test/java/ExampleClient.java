@@ -7,6 +7,13 @@ public class ExampleClient {
         Client client = new Client("localhost", 8080);
         client.start();
         Command command = client.createProxy(Command.class);
-        System.out.println(command.sayHiToServer());
+        for (int i = 0; i < 10000; i++) {
+            String result = command.sayHiToServer();
+            System.out.println(result);
+            if (result == null) {
+                break;
+            }
+        }
+        client.stop();
     }
 }
