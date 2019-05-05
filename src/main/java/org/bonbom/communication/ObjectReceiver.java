@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
  * Time: 11.46
  */
 
-//TODO is there a better way?
 public class ObjectReceiver {
 
     public static long TIMEOUT = 10000;
