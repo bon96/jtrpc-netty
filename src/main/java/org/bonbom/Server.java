@@ -27,7 +27,7 @@ import java.util.List;
 
 public class Server extends NetworkNode {
 
-    private static final Logger logger = LoggerFactory.getLogger(NetworkNode.class);
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private int port;
     private SessionManager<Channel> sessionManager;
@@ -65,11 +65,11 @@ public class Server extends NetworkNode {
                                     }
 
                                     if (o instanceof RemoteAnswer) {
-                                        onReceive((RemoteAnswer) o, ctx);
+                                        onReceive((RemoteAnswer) o);
                                     }
 
                                     if (o instanceof RemoteMethodCall) {
-                                        onReceive((RemoteMethodCall) o, ctx);
+                                        onReceive((RemoteMethodCall) o);
                                     }
                                 }
 
@@ -98,6 +98,7 @@ public class Server extends NetworkNode {
 
     public void onDisconnect(String name) {
         logger.info("Client {} disconnected", name);
+        sessionManager.unRegister(name);
     }
 
     public void stop() {

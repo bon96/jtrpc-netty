@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class NetworkNode {
 
-    private static final Logger logger = LoggerFactory.getLogger(FutureReceive.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkNode.class);
 
     private List<RemoteMethod> remoteMethods = new ArrayList<>();
     private ObjectReceiver receiver = new ObjectReceiver();
@@ -24,7 +24,7 @@ public abstract class NetworkNode {
     abstract Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException;
 
 
-    public void onReceive(RemoteAnswer remoteAnswer, ChannelHandlerContext ctx) {
+    public void onReceive(RemoteAnswer remoteAnswer) {
         logger.debug("Received RemoteAnswer: {}", remoteAnswer);
 
         if(!this.getName().equals(remoteAnswer.getReceiverName())) {
@@ -38,7 +38,7 @@ public abstract class NetworkNode {
         return receiver;
     }
 
-    public void onReceive(RemoteMethodCall remoteMethodCall, ChannelHandlerContext ctx) {
+    public void onReceive(RemoteMethodCall remoteMethodCall) {
         logger.debug("Received RemoteMethodCall: {}", remoteMethodCall);
 
         if (!this.getName().equals(remoteMethodCall.getReceiverName())) {

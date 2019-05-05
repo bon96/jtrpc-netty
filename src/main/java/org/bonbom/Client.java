@@ -17,6 +17,8 @@ import org.bonbom.communication.SessionRegistrationCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -42,6 +44,10 @@ public class Client extends NetworkNode {
         this.name = "client" + ThreadLocalRandom.current().nextInt();
     }
 
+    public Client(String host, int port, Protocol protocol) {
+
+    }
+
     public void start() throws Exception {
         group = new NioEventLoopGroup();
 
@@ -65,11 +71,11 @@ public class Client extends NetworkNode {
                                 @Override
                                 protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
                                     if (o instanceof RemoteAnswer) {
-                                        onReceive((RemoteAnswer) o, ctx);
+                                        onReceive((RemoteAnswer) o);
                                     }
 
                                     if (o instanceof RemoteMethodCall) {
-                                        onReceive((RemoteMethodCall) o, ctx);
+                                        onReceive((RemoteMethodCall) o);
                                     }
                                 }
 
