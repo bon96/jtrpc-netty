@@ -1,6 +1,5 @@
 package org.bonbom.communication;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
  */
 
 
-public class RemoteMethodCall implements Serializable {
+public class RemoteMethodCall implements RemoteObject {
 
     private String senderName;
     private String receiverName;
@@ -73,7 +72,7 @@ public class RemoteMethodCall implements Serializable {
         this.callBySimpleName = callBySimpleName;
     }
 
-    @Override
+    @Override //TODO is there a better way?
     public int hashCode() { //hashCode should match remoteMethod
         if (isCallBySimpleName()) {
             return classNameSimple.hashCode() + methodName.hashCode() + parameterTypes.hashCode();

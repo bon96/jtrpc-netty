@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
  * Time: 11.30
  */
 
+//TODO is there a better way?
 public class FutureReceive {
 
     private static final Logger logger = LoggerFactory.getLogger(FutureReceive.class);

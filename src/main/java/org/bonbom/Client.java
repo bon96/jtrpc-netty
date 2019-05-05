@@ -8,17 +8,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
-import org.bonbom.communication.FutureReceive;
-import org.bonbom.communication.RemoteAnswer;
-import org.bonbom.communication.RemoteMethodCall;
-import org.bonbom.communication.SessionRegistrationCall;
+import org.bonbom.communication.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -44,16 +37,12 @@ public class Client extends NetworkNode {
         this.name = "client" + ThreadLocalRandom.current().nextInt();
     }
 
-    public Client(String host, int port, Protocol protocol) {
-
-    }
-
     public void start() throws Exception {
         group = new NioEventLoopGroup();
 
         try {
-            Bootstrap b = new Bootstrap();
-            b.group(group)
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
 
@@ -92,13 +81,13 @@ public class Client extends NetworkNode {
 
 
 
-            ChannelFuture f = b.connect(host, port).sync();
+            ChannelFuture future = bootstrap.connect(host, port).sync();
 
-            channel = f.channel();
+            channel = future.channel();
 
             logger.info("Client is up and connected to server");
 
-            f.channel().closeFuture().sync();
+            future.channel().closeFuture().sync();
         } finally {
             stop();
         }
@@ -118,20 +107,9 @@ public class Client extends NetworkNode {
     }
 
     @Override
-    public void send(RemoteMethodCall remoteMethodCall) {
-        logger.debug("Sending RemoteMethodCall: {}", remoteMethodCall);
-        channel.writeAndFlush(remoteMethodCall);
-    }
-
-    @Override
-    public void send(RemoteAnswer remoteAnswer) {
-        logger.debug("Sending remoteAnswer: {}", remoteAnswer);
-        channel.writeAndFlush(remoteAnswer);
-    }
-
-    public void send(SessionRegistrationCall sessionRegistrationCall) {
-        logger.debug("Sending SessionRegistrationCall: {}", sessionRegistrationCall);
-        channel.writeAndFlush(sessionRegistrationCall);
+    public void send(RemoteObject remoteObject) {
+        logger.debug("Sending remoteObject: {}", remoteObject);
+        channel.writeAndFlush(remoteObject);
     }
 
     @Override
@@ -139,6 +117,14 @@ public class Client extends NetworkNode {
         logger.debug("Sending RemoteMethodCall and waiting for answer: {}", remoteMethodCall);
         channel.writeAndFlush(remoteMethodCall);
         return getReceiver().get(remoteMethodCall.hashCode());
+    }
+
+    public <T> T createProxy(Class proxyClass) {
+        return createProxy(proxyClass, true);
+    }
+
+    public <T> T createProxy(Class proxyClass, boolean ignorePath) {
+        return createProxy( "server", proxyClass, ignorePath);
     }
 
     public String getHost() {

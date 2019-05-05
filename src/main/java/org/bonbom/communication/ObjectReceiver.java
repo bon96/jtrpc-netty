@@ -13,6 +13,7 @@ import java.util.Map;
  * Time: 11.46
  */
 
+//TODO is there a better way?
 public class ObjectReceiver {
 
     private static final Logger logger = LoggerFactory.getLogger(ObjectReceiver.class);

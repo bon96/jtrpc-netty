@@ -69,7 +69,7 @@ public class RemoteMethod {
         return remoteMethodCall.hashCode() == hashCode();
     }
 
-    @Override
+    @Override //TODO is there a better way?
     public int hashCode() { //hashCode should match RemoteMethodCall
         return getClassName().hashCode() + getMethodName().hashCode() + parameterTypes.hashCode();
     }

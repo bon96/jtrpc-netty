@@ -1,7 +1,11 @@
 package org.bonbom;
 
-import io.netty.channel.ChannelHandlerContext;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
 import org.bonbom.communication.*;
+import org.objenesis.Objenesis;
+import org.objenesis.ObjenesisStd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,14 +17,14 @@ import java.util.List;
 public abstract class NetworkNode {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkNode.class);
+    private static final Objenesis objenesis = new ObjenesisStd();
 
     private List<RemoteMethod> remoteMethods = new ArrayList<>();
     private ObjectReceiver receiver = new ObjectReceiver();
 
     public abstract String getName();
 
-    abstract void send(RemoteMethodCall remoteMethodCall);
-    abstract void send(RemoteAnswer remoteAnswer);
+    abstract void send(RemoteObject remoteObject);
     abstract Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException;
 
 
@@ -118,5 +122,35 @@ public abstract class NetworkNode {
 
     public List<RemoteMethod> getRegisteredMethods() {
         return remoteMethods;
+    }
+
+    public <T> T createProxy(String clientName, Class proxyClass) {
+        return createProxy(clientName, proxyClass, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T createProxy(String clientName, Class proxyClass, boolean ignorePath) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setUseCache(false);
+        enhancer.setSuperclass(proxyClass);
+        enhancer.setCallbackType(MethodInterceptor.class);
+
+        Class clazz = enhancer.createClass();
+        Enhancer.registerCallbacks(clazz, new Callback[]{(MethodInterceptor) (obj, method, args1, proxy) -> {
+            if (method.getDeclaringClass() != Object.class) {
+                RemoteMethodCall remoteMethodCall = new RemoteMethodCall(getName(), clientName, method.getDeclaringClass(), method, args1);
+                remoteMethodCall.setCallBySimpleName(ignorePath);
+
+                if (method.getReturnType() == void.class) {
+                    send(remoteMethodCall);
+                    return null;
+                }
+                return sendAndWait(remoteMethodCall);
+            }
+            return proxy.invokeSuper(obj, args1);
+        }});
+        Object instance = objenesis.newInstance(clazz);
+        instance.hashCode(); // hacky af. Some shit requires any method call to fix a weird bug with JavaFX Platform::runLater
+        return (T) instance;
     }
 }

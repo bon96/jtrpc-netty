@@ -12,6 +12,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethodCall;
+import org.bonbom.communication.RemoteObject;
 import org.bonbom.communication.SessionRegistrationCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,10 @@ public class Server extends NetworkNode {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
+    public Server() {
+        this(0);
+    }
+
     public Server(int port) {
         this.port = port;
         this.sessionManager = new SessionManager<>();
@@ -45,9 +50,9 @@ public class Server extends NetworkNode {
         workerGroup = new NioEventLoopGroup();
 
         try {
-            ServerBootstrap b = new ServerBootstrap();
+            ServerBootstrap bootstrap = new ServerBootstrap();
 
-            b.group(bossGroup, workerGroup)
+            bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
@@ -84,13 +89,13 @@ public class Server extends NetworkNode {
                                     onDisconnect(sessionManager.get(ch)));
                         }
                     });
-            ChannelFuture f = b.bind(port).sync();
+            ChannelFuture future = bootstrap.bind(port).sync();
 
             if (port == 0) {
-                port = ((InetSocketAddress) f.channel().localAddress()).getPort();
+                port = ((InetSocketAddress) future.channel().localAddress()).getPort();
             }
 
-            f.channel().closeFuture().sync();
+            future.channel().closeFuture().sync();
         } finally {
             stop();
         }
@@ -107,25 +112,14 @@ public class Server extends NetworkNode {
     }
 
     @Override
-    public void send(RemoteMethodCall remoteMethodCall) {
-        logger.debug("Sending RemoteMethodCall: {}", remoteMethodCall);
+    public void send(RemoteObject remoteObject) {
+        logger.debug("Sending RemoteMethodCall: {}", remoteObject);
 
-        if (sessionManager.contains(remoteMethodCall.getReceiverName())) {
-            sessionManager.get(remoteMethodCall.getReceiverName()).writeAndFlush(remoteMethodCall);
+        if (sessionManager.contains(remoteObject.getReceiverName())) {
+            sessionManager.get(remoteObject.getReceiverName()).writeAndFlush(remoteObject);
             return;
         }
-        throw new RuntimeException("No session for client named \"" + remoteMethodCall.getReceiverName() + "\"");
-    }
-
-    @Override
-    void send(RemoteAnswer remoteAnswer) {
-        logger.debug("Sending remoteAnswer: {}", remoteAnswer);
-
-        if (sessionManager.contains(remoteAnswer.getReceiverName())) {
-            sessionManager.get(remoteAnswer.getReceiverName()).writeAndFlush(remoteAnswer);
-            return;
-        }
-        throw new RuntimeException("No session for " + remoteAnswer.getReceiverName());
+        throw new RuntimeException("No session for client named \"" + remoteObject.getReceiverName() + "\"");
     }
 
     @Override
