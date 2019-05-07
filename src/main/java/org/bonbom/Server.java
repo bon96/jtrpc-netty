@@ -10,6 +10,7 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethodCall;
 import org.bonbom.communication.RemoteObject;
@@ -19,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Tommi
@@ -49,8 +52,9 @@ public class Server extends NetworkNode {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
 
-        ServerBootstrap bootstrap = new ServerBootstrap();
+        ExecutorService executor = Executors.newFixedThreadPool(getThreads());
 
+        ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
@@ -69,11 +73,11 @@ public class Server extends NetworkNode {
                                 }
 
                                 if (o instanceof RemoteAnswer) {
-                                    onReceive((RemoteAnswer) o);
+                                    executor.submit(() -> onReceive((RemoteAnswer) o));
                                 }
 
                                 if (o instanceof RemoteMethodCall) {
-                                    onReceive((RemoteMethodCall) o);
+                                    executor.submit(() -> onReceive((RemoteMethodCall) o));
                                 }
                             }
 

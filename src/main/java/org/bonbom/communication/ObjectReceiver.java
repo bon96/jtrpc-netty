@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,11 +23,15 @@ public class ObjectReceiver {
     private final BlockingHashMap<Long, Object> receives = new BlockingHashMap<>();
 
     public Object get(long id) throws InterruptedException {
-        return receives.take(id, TIMEOUT, TimeUnit.MILLISECONDS);
+        logger.debug("Retrieving object with id {}", id);
+        Object object = receives.take(id, TIMEOUT, TimeUnit.MILLISECONDS);
+        if (logger.isDebugEnabled() && object == null) {
+            logger.debug("TIMEOUT or null object with id {} in map", id);
+        }
+        return object;
     }
 
     public void onReceive(RemoteAnswer remoteAnswer) {
-        logger.debug("Received RemoteAnswer: {}", remoteAnswer);
         receives.put(remoteAnswer.getId(), remoteAnswer.getObject());
     }
 }

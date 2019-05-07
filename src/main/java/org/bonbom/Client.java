@@ -8,10 +8,14 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.UnorderedThreadPoolEventExecutor;
 import org.bonbom.communication.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -29,6 +33,7 @@ public class Client extends NetworkNode {
     private String name;
 
     private EventLoopGroup group;
+
     private Channel channel;
 
     public Client(String host, int port) {
@@ -39,6 +44,8 @@ public class Client extends NetworkNode {
 
     public void start() throws Exception {
         group = new NioEventLoopGroup();
+
+        ExecutorService executor = Executors.newFixedThreadPool(getThreads());
 
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group)
@@ -59,11 +66,11 @@ public class Client extends NetworkNode {
                             @Override
                             protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
                                 if (o instanceof RemoteAnswer) {
-                                    onReceive((RemoteAnswer) o);
+                                    executor.submit(() -> onReceive((RemoteAnswer) o));
                                 }
 
                                 if (o instanceof RemoteMethodCall) {
-                                    onReceive((RemoteMethodCall) o);
+                                    executor.submit(() -> onReceive((RemoteMethodCall) o));
                                 }
                             }
 

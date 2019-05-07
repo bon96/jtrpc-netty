@@ -19,6 +19,8 @@ public abstract class NetworkNode {
     private static final Logger logger = LoggerFactory.getLogger(NetworkNode.class);
     private static final Objenesis objenesis = new ObjenesisStd();
 
+    private int threads = 10;
+
     private List<RemoteMethod> remoteMethods = new ArrayList<>();
     private ObjectReceiver receiver = new ObjectReceiver();
 
@@ -29,7 +31,7 @@ public abstract class NetworkNode {
 
 
     public void onReceive(RemoteAnswer remoteAnswer) {
-        logger.debug("Received RemoteAnswer: {}", remoteAnswer);
+        logger.debug("Received RemoteAnswer for id {}: {}", remoteAnswer.getId(), remoteAnswer);
 
         if(!this.getName().equals(remoteAnswer.getReceiverName())) {
             send(remoteAnswer);
@@ -43,7 +45,7 @@ public abstract class NetworkNode {
     }
 
     public void onReceive(RemoteMethodCall remoteMethodCall) {
-        logger.debug("Received RemoteMethodCall: {}", remoteMethodCall);
+        logger.debug("Received RemoteMethodCall for id {}: {}", remoteMethodCall.getId(), remoteMethodCall);
 
         if (!this.getName().equals(remoteMethodCall.getReceiverName())) {
             send(remoteMethodCall);
@@ -152,5 +154,13 @@ public abstract class NetworkNode {
         Object instance = objenesis.newInstance(clazz);
         instance.hashCode(); // hacky af. Some shit requires any method call to fix a weird bug with JavaFX Platform::runLater
         return (T) instance;
+    }
+
+    public int getThreads() {
+        return threads;
+    }
+
+    public void setThreads(int threads) {
+        this.threads = threads;
     }
 }
