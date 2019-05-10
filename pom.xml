@@ -6,7 +6,7 @@
 
     <groupId>org.bonbom</groupId>
     <artifactId>jtrpc-netty</artifactId>
-    <version>2.3.0</version>
+    <version>4.1.0.Final</version>
 
     <build>
         <plugins>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.36.Final</version>
+            <version>4.1.0.Final</version>
         </dependency>
         <dependency>
             <groupId>com.github.sarveswaran-m</groupId>

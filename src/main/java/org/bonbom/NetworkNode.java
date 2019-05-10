@@ -127,7 +127,7 @@ public abstract class NetworkNode {
     }
 
     public <T> T createProxy(String clientName, Class proxyClass) {
-        return createProxy(clientName, proxyClass, false);
+        return createProxy(clientName, proxyClass, true);
     }
 
     @SuppressWarnings("unchecked")
