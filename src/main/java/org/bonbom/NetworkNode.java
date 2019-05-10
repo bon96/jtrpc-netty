@@ -1,5 +1,6 @@
 package org.bonbom;
 
+import io.netty.handler.logging.LogLevel;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -14,6 +15,9 @@ import java.util.*;
 
 public abstract class NetworkNode {
 
+    LogLevel logLevel;
+    boolean running = false;
+
     private static final Logger logger = LoggerFactory.getLogger(NetworkNode.class);
     private static final Objenesis objenesis = new ObjenesisStd();
 
@@ -24,6 +28,8 @@ public abstract class NetworkNode {
     private Map<Integer, RemoteMethod> registeredMethods = new HashMap<>();
 
     public abstract String getName();
+
+    abstract void stop();
 
     abstract void send(RemoteObject remoteObject);
     abstract Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException;
@@ -151,5 +157,17 @@ public abstract class NetworkNode {
 
     public void setThreads(int threads) {
         this.threads = threads;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public LogLevel getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(LogLevel logLevel) {
+        this.logLevel = logLevel;
     }
 }

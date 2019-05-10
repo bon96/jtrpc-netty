@@ -8,6 +8,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.bonbom.communication.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ public class Client extends NetworkNode {
         this.host = host;
         this.port = port;
         this.name = "client" + ThreadLocalRandom.current().nextInt();
+        logLevel = LogLevel.ERROR;
     }
 
     public void start() throws Exception {
@@ -48,6 +51,7 @@ public class Client extends NetworkNode {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
+                .handler(new LoggingHandler(logLevel))
                 .handler(new ChannelInitializer<SocketChannel>() {
 
                     @Override
@@ -85,6 +89,7 @@ public class Client extends NetworkNode {
 
         ChannelFuture future = bootstrap.connect(host, port).sync();
 
+        running = true;
         channel = future.channel();
         logger.info("Client is up and connected to server");
     }
@@ -95,6 +100,7 @@ public class Client extends NetworkNode {
 
     public void stop() {
         group.shutdownGracefully();
+        running = false;
     }
 
     @Override

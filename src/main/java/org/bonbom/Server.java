@@ -30,6 +30,8 @@ import java.util.concurrent.Executors;
 
 public class Server extends NetworkNode {
 
+    public static LogLevel logLevel = LogLevel.INFO;
+
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private int port;
@@ -45,6 +47,7 @@ public class Server extends NetworkNode {
     public Server(int port) {
         this.port = port;
         this.sessionManager = new SessionManager<>();
+        logLevel = LogLevel.INFO;
     }
 
     public void start() throws Exception {
@@ -56,7 +59,7 @@ public class Server extends NetworkNode {
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
+                .handler(new LoggingHandler(logLevel))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
@@ -94,6 +97,8 @@ public class Server extends NetworkNode {
 
         ChannelFuture future = bootstrap.bind(port).sync();
 
+        running = true;
+
         if (port == 0) {
             port = ((InetSocketAddress) future.channel().localAddress()).getPort();
         }
@@ -107,6 +112,7 @@ public class Server extends NetworkNode {
     public void stop() {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        running = false;
     }
 
     @Override
