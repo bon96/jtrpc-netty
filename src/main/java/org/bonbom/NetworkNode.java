@@ -10,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public abstract class NetworkNode {
 
@@ -21,8 +19,9 @@ public abstract class NetworkNode {
 
     private int threads = 10;
 
-    private List<RemoteMethod> remoteMethods = new ArrayList<>();
     private ObjectReceiver receiver = new ObjectReceiver();
+
+    private Map<Integer, RemoteMethod> registeredMethods = new HashMap<>();
 
     public abstract String getName();
 
@@ -59,11 +58,11 @@ public abstract class NetworkNode {
                     remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects());
                     return;
                 }
-                RemoteAnswer answer = new RemoteAnswer(
+
+                send(new RemoteAnswer(
                         remoteMethodCall.getSenderName(),
                         remoteMethodCall.getId(),
-                        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects()));
-                send(answer);
+                        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects())));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -73,19 +72,16 @@ public abstract class NetworkNode {
     }
 
     public RemoteMethod getMatch(RemoteMethodCall remoteMethodCall) {
-        for (RemoteMethod remoteMethod : getRegisteredMethods()) {
-            if (remoteMethod.match(remoteMethodCall)) {
-                return remoteMethod;
-            }
-        }
-        return null;
+        return registeredMethods.get(remoteMethodCall.hashCode());
     }
 
     public void registerMethods(Object instance, List<Method> methods) {
         if (logger.isDebugEnabled()) logger.debug("Registering {} methods: {} ", instance.getClass().getName(), methods);
 
         for (Method method : methods) {
-            remoteMethods.add(new RemoteMethod(instance, method));
+            RemoteMethod remoteMethod = new RemoteMethod(instance, method);
+            registeredMethods.put(remoteMethod.hashCode(), remoteMethod);
+            registeredMethods.put(remoteMethod.simpleHashCode(), remoteMethod);
         }
     }
 
@@ -101,7 +97,9 @@ public abstract class NetworkNode {
         if (logger.isDebugEnabled()) logger.debug("Registering methods from {} mapped to {}: {}", interf.getName(), instance.getClass().getName(), methods);
 
         for (Method method : methods) {
-            remoteMethods.add(new RemoteMethod(interf, instance, method));
+            RemoteMethod remoteMethod = new RemoteMethod(interf, instance, method);
+            registeredMethods.put(remoteMethod.hashCode(), remoteMethod);
+            registeredMethods.put(remoteMethod.simpleHashCode(), remoteMethod);
         }
     }
 
@@ -113,17 +111,8 @@ public abstract class NetworkNode {
         registerMethods(interf, impl.newInstance());
     }
 
-    public RemoteMethod getRegisteredMethod(String className, String methodName) {
-        for (RemoteMethod method : remoteMethods) {
-            if (method.getClassName().equals(className) && method.getMethodName().equals(methodName)) {
-                return method;
-            }
-        }
-        return null;
-    }
-
-    public List<RemoteMethod> getRegisteredMethods() {
-        return remoteMethods;
+    public Collection<RemoteMethod> getRegisteredMethods() {
+        return registeredMethods.values();
     }
 
     public <T> T createProxy(String clientName, Class proxyClass) {

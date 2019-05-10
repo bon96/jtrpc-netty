@@ -10,7 +10,6 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.bonbom.communication.RemoteAnswer;
 import org.bonbom.communication.RemoteMethodCall;
 import org.bonbom.communication.RemoteObject;
@@ -98,16 +97,6 @@ public class Server extends NetworkNode {
         if (port == 0) {
             port = ((InetSocketAddress) future.channel().localAddress()).getPort();
         }
-
-        new Thread(() -> {
-            try {
-                future.channel().closeFuture().sync();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                stop();
-            }
-        }).start();
     }
 
     public void onDisconnect(String name) {

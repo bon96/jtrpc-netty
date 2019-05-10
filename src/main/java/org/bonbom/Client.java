@@ -87,16 +87,6 @@ public class Client extends NetworkNode {
 
         channel = future.channel();
         logger.info("Client is up and connected to server");
-
-        new Thread(() -> {
-            try {
-                future.channel().closeFuture().sync();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                stop();
-            }
-        }).start();
     }
 
     public void onDisconnect() {
