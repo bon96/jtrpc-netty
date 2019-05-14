@@ -6,13 +6,13 @@ package commands;
  * Time: 22.58
  */
 
-public class CommandImpl implements Command {
+public abstract class CommandImpl implements Command {
 
     int i = 0;
 
-    @Override
-    public String sayHiToServer() {
-        return String.valueOf(i++);
+
+    public int getValue() {
+        return i;
     }
 }
 

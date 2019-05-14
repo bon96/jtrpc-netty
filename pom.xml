@@ -6,7 +6,7 @@
 
     <groupId>org.bonbom</groupId>
     <artifactId>jtrpc-netty</artifactId>
-    <version>4.1.0.Final</version>
+    <version>2.3.3</version>
 
     <build>
         <plugins>

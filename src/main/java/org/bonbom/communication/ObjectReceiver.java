@@ -21,13 +21,19 @@ public class ObjectReceiver {
 
     private final BlockingHashMap<Long, Object> receives = new BlockingHashMap<>();
 
-    public Object get(long id) throws InterruptedException {
+    public Object get(long id) {
         logger.debug("Retrieving object with id {}", id);
-        Object object = receives.take(id, TIMEOUT, TimeUnit.MILLISECONDS);
-        if (logger.isDebugEnabled() && object == null) {
-            logger.debug("TIMEOUT or null object with id {} in map", id);
+        try {
+            Object object = receives.take(id, TIMEOUT, TimeUnit.MILLISECONDS);
+
+            if (object == null) {
+                logger.debug("null object in map with id {}", id);
+            }
+            return object;
+        } catch (InterruptedException e) {
+            logger.error("TIMEOUT with id {}", id);
         }
-        return object;
+        return null;
     }
 
     public void onReceive(RemoteAnswer remoteAnswer) {

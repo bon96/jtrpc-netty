@@ -39,6 +39,7 @@ public class Server extends NetworkNode {
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+    private ExecutorService executor;
 
     public Server() {
         this(0);
@@ -54,7 +55,7 @@ public class Server extends NetworkNode {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
 
-        ExecutorService executor = Executors.newFixedThreadPool(getThreads());
+        executor = Executors.newFixedThreadPool(getThreads());
 
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup)
@@ -112,6 +113,7 @@ public class Server extends NetworkNode {
     public void stop() {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        executor.shutdown();
         running = false;
     }
 

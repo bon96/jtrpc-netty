@@ -33,6 +33,7 @@ public class Client extends NetworkNode {
     private String name;
 
     private EventLoopGroup group;
+    private ExecutorService executor;
 
     private Channel channel;
 
@@ -46,7 +47,7 @@ public class Client extends NetworkNode {
     public void start() throws Exception {
         group = new NioEventLoopGroup();
 
-        ExecutorService executor = Executors.newFixedThreadPool(getThreads());
+        executor = Executors.newFixedThreadPool(getThreads());
 
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group)
@@ -100,6 +101,7 @@ public class Client extends NetworkNode {
 
     public void stop() {
         group.shutdownGracefully();
+        executor.shutdown();
         running = false;
     }
 
@@ -115,7 +117,7 @@ public class Client extends NetworkNode {
     }
 
     @Override
-    public Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException {
+    public Object sendAndWait(RemoteMethodCall remoteMethodCall) {
         logger.debug("Sending RemoteMethodCall and waiting for answer: {}", remoteMethodCall);
         channel.writeAndFlush(remoteMethodCall);
         return getReceiver().get(remoteMethodCall.getId());

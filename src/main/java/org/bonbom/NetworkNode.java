@@ -151,6 +151,17 @@ public abstract class NetworkNode {
         return (T) instance;
     }
 
+
+    //TODO adding support for remote objects
+/*
+    public <T> T remoteOf(Class clazz, Object... objects) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setUseCache(false);
+        enhancer.setSuperclass(clazz);
+        });
+    }
+ */
+
     public int getThreads() {
         return threads;
     }
