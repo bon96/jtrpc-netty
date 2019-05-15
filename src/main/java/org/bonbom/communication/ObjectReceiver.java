@@ -25,13 +25,12 @@ public class ObjectReceiver {
         logger.debug("Retrieving object with id {}", id);
         try {
             Object object = receives.take(id, TIMEOUT, TimeUnit.MILLISECONDS);
-
-            if (object == null) {
-                logger.debug("null object in map with id {}", id);
+            if (logger.isDebugEnabled() && object == null) {
+                logger.debug("TIMEOUT or null object with id {} in map", id);
             }
             return object;
         } catch (InterruptedException e) {
-            logger.error("TIMEOUT with id {}", id);
+            e.printStackTrace();
         }
         return null;
     }
