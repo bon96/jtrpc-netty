@@ -77,10 +77,10 @@ public class RemoteMethodCall implements RemoteObject {
 
     public Object[] getObjects(ObjectDecoder decoder) throws Exception {
         if (objects.isEmpty()) {
-            return null;
+            return new Object[0];
         }
 
-        Object[] objects = new Object[this.objects.size()-1];
+        Object[] objects = new Object[this.objects.size()];
         for (int i = 0 ; i < this.objects.size(); i++) {
             objects[i] = decoder.decode(null, Unpooled.wrappedBuffer(this.objects.get(i)));
         }
