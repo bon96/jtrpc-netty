@@ -21,6 +21,12 @@ public class ObjectReceiver {
 
     private final BlockingHashMap<Long, Object> receives = new BlockingHashMap<>();
 
+    private ObjectDecoder decoder;
+
+    public ObjectReceiver(ObjectDecoder decoder) {
+        this.decoder = decoder;
+    }
+
     public Object get(long id) {
         logger.debug("Retrieving object with id {}", id);
         try {
@@ -36,6 +42,10 @@ public class ObjectReceiver {
     }
 
     public void onReceive(RemoteAnswer remoteAnswer) {
-        receives.put(remoteAnswer.getId(), remoteAnswer.getObject());
+        try {
+            receives.put(remoteAnswer.getId(), remoteAnswer.getObject(decoder));
+        } catch (Exception e) {
+            logger.error("Can't decode object " + remoteAnswer.toString());
+        }
     }
 }

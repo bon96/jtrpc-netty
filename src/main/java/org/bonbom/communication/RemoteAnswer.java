@@ -1,5 +1,12 @@
 package org.bonbom.communication;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+
 /**
  * Tommi
  * Date: 13.1.2019
@@ -8,14 +15,24 @@ package org.bonbom.communication;
 
 public class RemoteAnswer implements RemoteObject {
 
+    private final Logger logger = LoggerFactory.getLogger(RemoteAnswer.class);
+
     private String receiverName;
     private long id;
-    private Object object;
+    private byte[] bytes;
+    private String objectString;
 
-    public RemoteAnswer(String receiverName, long id, Object object) {
+    public RemoteAnswer(String receiverName, long id, Object object) throws Exception {
         this.receiverName = receiverName;
         this.id = id;
-        this.object = object;
+
+        ByteBuf byteBuf = Unpooled.buffer();
+        encode((Serializable) object, byteBuf);
+        bytes = byteBuf.array();
+
+        if (logger.isDebugEnabled() && object != null) {
+            objectString = object.toString();
+        }
     }
 
     public String getReceiverName() {
@@ -26,12 +43,12 @@ public class RemoteAnswer implements RemoteObject {
         return id;
     }
 
-    public Object getObject() {
-        return object;
+    public Object getObject(ObjectDecoder decoder) throws Exception {
+        return decoder.decode(null, Unpooled.wrappedBuffer(bytes));
     }
 
     @Override
     public String toString() {
-        return receiverName + ", " + id + ", " + (object == null ? null : object.toString());
+        return receiverName + ", " + id + ", " + objectString;
     }
 }

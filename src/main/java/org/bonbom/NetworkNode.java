@@ -1,5 +1,6 @@
 package org.bonbom;
 
+import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.logging.LogLevel;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -23,7 +24,8 @@ public abstract class NetworkNode {
 
     private int threads = 10;
 
-    private ObjectReceiver receiver = new ObjectReceiver();
+    private ObjectReceiver receiver;
+    private ObjectDecoder decoder;
 
     private Map<Integer, RemoteMethod> registeredMethods = new HashMap<>();
 
@@ -33,6 +35,11 @@ public abstract class NetworkNode {
 
     abstract void send(RemoteObject remoteObject);
     abstract Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException;
+
+    {
+        this.decoder = new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader()));
+        this.receiver = new ObjectReceiver(decoder);
+    }
 
 
     public void onReceive(RemoteAnswer remoteAnswer) {
@@ -61,14 +68,14 @@ public abstract class NetworkNode {
         if (remoteMethod != null) {
             try {
                 if (remoteMethod.getMethod().getReturnType().equals(void.class)) {
-                    remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects());
+                    remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects(decoder));
                     return;
                 }
 
                 send(new RemoteAnswer(
                         remoteMethodCall.getSenderName(),
                         remoteMethodCall.getId(),
-                        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects())));
+                        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects(decoder))));
             } catch (Exception e) {
                 e.printStackTrace();
             }

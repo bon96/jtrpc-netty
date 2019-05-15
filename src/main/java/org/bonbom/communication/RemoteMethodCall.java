@@ -1,5 +1,9 @@
 package org.bonbom.communication;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,24 +25,33 @@ public class RemoteMethodCall implements RemoteObject {
     private String classNameSimple;
     private String methodName;
 
-    private Object[] objects;
+    private List<byte[]> objects;
     private List<String> parameterTypes = new ArrayList<>();
 
     private boolean callBySimpleName = false;
 
     private long id;
 
-    public RemoteMethodCall(String senderName, String receiverName, Class clazz, Method method, Object... objects) {
+    public RemoteMethodCall(String senderName, String receiverName, Class clazz, Method method, Object... objects) throws Exception {
         this.senderName = senderName;
         this.receiverName = receiverName;
         this.className = clazz.getName();
         this.classNameSimple = clazz.getSimpleName();
         this.methodName = method.getName();
-        this.objects = objects;
         this.id = ThreadLocalRandom.current().nextLong();
 
         for (Class c : method.getParameterTypes()) {
             parameterTypes.add(c.getName());
+        }
+
+        this.objects = new ArrayList<>();
+
+        if (objects.length > 0) {
+            for (Object object : objects) {
+                ByteBuf byteBuf = Unpooled.buffer();
+                encode((Serializable) object, byteBuf);
+                this.objects.add(byteBuf.array());
+            }
         }
     }
 
@@ -62,7 +75,15 @@ public class RemoteMethodCall implements RemoteObject {
         return methodName;
     }
 
-    public Object[] getObjects() {
+    public Object[] getObjects(ObjectDecoder decoder) throws Exception {
+        if (objects.isEmpty()) {
+            return null;
+        }
+
+        Object[] objects = new Object[this.objects.size()-1];
+        for (int i = 0 ; i < this.objects.size(); i++) {
+            objects[i] = decoder.decode(null, Unpooled.wrappedBuffer(this.objects.get(i)));
+        }
         return objects;
     }
 

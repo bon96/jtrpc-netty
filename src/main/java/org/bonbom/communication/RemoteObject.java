@@ -1,5 +1,9 @@
 package org.bonbom.communication;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
@@ -10,4 +14,18 @@ import java.io.Serializable;
 
 public interface RemoteObject extends Serializable {
     String getReceiverName();
+
+     byte[] LENGTH_PLACEHOLDER = new byte[4];
+
+    default void encode(Serializable object, ByteBuf out) throws Exception {
+        int startIdx = out.writerIndex();
+        ByteBufOutputStream bout = new ByteBufOutputStream(out);
+        bout.write(LENGTH_PLACEHOLDER);
+        ObjectOutputStream oout = new CompactObjectOutputStream(bout);
+        oout.writeObject(object);
+        oout.flush();
+        oout.close();
+        int endIdx = out.writerIndex();
+        out.setInt(startIdx, endIdx - startIdx - 4);
+    }
 }
