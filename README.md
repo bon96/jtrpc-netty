@@ -5,4 +5,4 @@ jtrpc generates proxy objects from either interfaces or classes for remote invoc
 
 check [tests](src/test/java) for an example. 
 
-Cleaning is required.
+Cleaning is required, some critical bugs still exist and some functionality is unfinished / partly implemented. 
