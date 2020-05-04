@@ -1,7 +1,13 @@
 package org.bonbom;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -10,7 +16,11 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.bonbom.communication.*;
+import org.bonbom.communication.ObjectReceiver;
+import org.bonbom.communication.RemoteAnswer;
+import org.bonbom.communication.RemoteMethodCall;
+import org.bonbom.communication.RemoteObject;
+import org.bonbom.communication.SessionRegistrationCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +138,7 @@ public class Client extends NetworkNode {
     }
 
     public <T> T createProxy(Class proxyClass, boolean ignorePath) {
-        return createProxy( "server", proxyClass, ignorePath);
+        return createProxy("server", proxyClass, ignorePath);
     }
 
     public String getHost() {

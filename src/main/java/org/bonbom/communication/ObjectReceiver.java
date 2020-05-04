@@ -15,10 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ObjectReceiver {
 
-    public static long TIMEOUT = 10000;
-
     private static final Logger logger = LoggerFactory.getLogger(ObjectReceiver.class);
-
+    public static long TIMEOUT = 30000;
     private final BlockingHashMap<Long, Object> receives = new BlockingHashMap<>();
 
     private ObjectDecoder decoder;

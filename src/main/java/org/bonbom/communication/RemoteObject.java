@@ -13,9 +13,9 @@ import java.io.Serializable;
  */
 
 public interface RemoteObject extends Serializable {
-    String getReceiverName();
+    byte[] LENGTH_PLACEHOLDER = new byte[4];
 
-     byte[] LENGTH_PLACEHOLDER = new byte[4];
+    String getReceiverName();
 
     default void encode(Serializable object, ByteBuf out) throws Exception {
         int startIdx = out.writerIndex();

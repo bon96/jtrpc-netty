@@ -5,23 +5,30 @@ import io.netty.handler.logging.LogLevel;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
-import org.bonbom.communication.*;
+import org.bonbom.communication.ObjectDecoder;
+import org.bonbom.communication.ObjectReceiver;
+import org.bonbom.communication.RemoteAnswer;
+import org.bonbom.communication.RemoteMethod;
+import org.bonbom.communication.RemoteMethodCall;
+import org.bonbom.communication.RemoteObject;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class NetworkNode {
 
-    LogLevel logLevel;
-    boolean running = false;
-
     private static final Logger logger = LoggerFactory.getLogger(NetworkNode.class);
     private static final Objenesis objenesis = new ObjenesisStd();
-
+    LogLevel logLevel;
+    boolean running = false;
     private int threads = 10;
 
     private ObjectReceiver receiver;
@@ -29,23 +36,23 @@ public abstract class NetworkNode {
 
     private Map<Integer, RemoteMethod> registeredMethods = new HashMap<>();
 
-    public abstract String getName();
-
-    abstract void stop();
-
-    abstract void send(RemoteObject remoteObject);
-    abstract Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException;
-
     {
         this.decoder = new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader()));
         this.receiver = new ObjectReceiver(decoder);
     }
 
+    public abstract String getName();
+
+    abstract void stop();
+
+    abstract void send(RemoteObject remoteObject);
+
+    abstract Object sendAndWait(RemoteMethodCall remoteMethodCall) throws InterruptedException;
 
     public void onReceive(RemoteAnswer remoteAnswer) {
         logger.debug("Received RemoteAnswer for id {}: {}", remoteAnswer.getId(), remoteAnswer);
 
-        if(!this.getName().equals(remoteAnswer.getReceiverName())) {
+        if (!this.getName().equals(remoteAnswer.getReceiverName())) {
             send(remoteAnswer);
             return;
         }
@@ -89,7 +96,8 @@ public abstract class NetworkNode {
     }
 
     public void registerMethods(Object instance, List<Method> methods) {
-        if (logger.isDebugEnabled()) logger.debug("Registering {} methods: {} ", instance.getClass().getName(), methods);
+        if (logger.isDebugEnabled())
+            logger.debug("Registering {} methods: {} ", instance.getClass().getName(), methods);
 
         for (Method method : methods) {
             RemoteMethod remoteMethod = new RemoteMethod(instance, method);
@@ -103,11 +111,12 @@ public abstract class NetworkNode {
     }
 
     public void registerMethods(Class clazz) throws Exception {
-       registerMethods(clazz.newInstance());
+        registerMethods(clazz.newInstance());
     }
 
     public void registerMethods(Class interf, Object instance, List<Method> methods) {
-        if (logger.isDebugEnabled()) logger.debug("Registering methods from {} mapped to {}: {}", interf.getName(), instance.getClass().getName(), methods);
+        if (logger.isDebugEnabled())
+            logger.debug("Registering methods from {} mapped to {}: {}", interf.getName(), instance.getClass().getName(), methods);
 
         for (Method method : methods) {
             RemoteMethod remoteMethod = new RemoteMethod(interf, instance, method);

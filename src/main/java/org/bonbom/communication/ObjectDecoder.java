@@ -12,7 +12,7 @@ public class ObjectDecoder extends LengthFieldBasedFrameDecoder {
     private final ClassResolver classResolver;
 
     public ObjectDecoder(ClassResolver classResolver) {
-        this(1048576, classResolver);
+        this(Integer.MAX_VALUE, classResolver);
     }
 
     public ObjectDecoder(int maxObjectSize, ClassResolver classResolver) {
@@ -21,7 +21,7 @@ public class ObjectDecoder extends LengthFieldBasedFrameDecoder {
     }
 
     public Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        ByteBuf frame = (ByteBuf)super.decode(ctx, in);
+        ByteBuf frame = (ByteBuf) super.decode(ctx, in);
         if (frame == null) {
             return null;
         } else {

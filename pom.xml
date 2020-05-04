@@ -6,15 +6,7 @@
 
     <groupId>org.bonbom</groupId>
     <artifactId>jtrpc-netty</artifactId>
-    <version>2.4.5</version>
-
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>maven</name>
-            <url>http://ns397548.ip-151-80-40.eu:8081/artifactory/maven</url>
-        </repository>
-    </distributionManagement>
+    <version>2.4.7</version>
 
     <build>
         <plugins>
@@ -23,37 +15,22 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.2</version> <!-- or whatever current version -->
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.0</version>
-                <configuration>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
     <properties>
-        <java.version>1.8</java.version>
-        <maven.compile.source>1.8</maven.compile.source>
-        <maven.compile.target>1.8</maven.compile.target>
+        <java.version>11</java.version>
+        <maven.compile.source>11</maven.compile.source>
+        <maven.compile.target>11</maven.compile.target>
     </properties>
 
     <dependencies>
@@ -61,12 +38,6 @@
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>3.2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

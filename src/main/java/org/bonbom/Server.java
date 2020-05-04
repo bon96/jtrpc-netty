@@ -1,7 +1,13 @@
 package org.bonbom;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -30,10 +36,8 @@ import java.util.concurrent.Executors;
 
 public class Server extends NetworkNode {
 
-    public static LogLevel logLevel = LogLevel.INFO;
-
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
-
+    public static LogLevel logLevel = LogLevel.INFO;
     private int port;
     private SessionManager<Channel> sessionManager;
 
@@ -71,8 +75,12 @@ public class Server extends NetworkNode {
                             @Override
                             protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
                                 if (o instanceof SessionRegistrationCall) {
-                                    sessionManager.register(((SessionRegistrationCall) o).getName(), ctx.channel());
+                                    String name = ((SessionRegistrationCall) o).getName();
+                                    sessionManager.register(name, ctx.channel());
                                     logger.debug("Registered " + ((SessionRegistrationCall) o).getName());
+
+                                    ctx.channel().closeFuture().addListener((ChannelFutureListener) channelFuture ->
+                                            onDisconnect(name));
                                 }
 
                                 if (o instanceof RemoteAnswer) {
@@ -87,12 +95,9 @@ public class Server extends NetworkNode {
                             @Override
                             public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
                                 cause.printStackTrace();
-                                ctx.close();
+                                ctx.channel().close();
                             }
                         });
-
-                        ch.closeFuture().addListener((ChannelFutureListener) channelFuture ->
-                                onDisconnect(sessionManager.get(ch)));
                     }
                 });
 

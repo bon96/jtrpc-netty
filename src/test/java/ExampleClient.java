@@ -9,7 +9,8 @@ public class ExampleClient {
         Client client = new Client("localhost", 8080);
         client.start();
         Command2 command2 = client.createProxy(Command2.class);
-        command2.sayHiToServer(new HashMap<>());
+        System.setProperty("source", "client");
+        command2.run(() -> System.out.println(System.getProperty("source")));
         client.stop();
     }
 }
