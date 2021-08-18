@@ -21,6 +21,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.0</version>
             </plugin>
@@ -31,6 +32,7 @@
         <java.version>11</java.version>
         <maven.compile.source>11</maven.compile.source>
         <maven.compile.target>11</maven.compile.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
