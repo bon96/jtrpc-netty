@@ -10,6 +10,7 @@ public class ExampleClient {
         client.start();
         Command2 command2 = client.createProxy(Command2.class);
         System.setProperty("source", "client");
+        command2.sayHiToServer("");
         command2.run(() -> System.out.println(System.getProperty("source")));
         client.stop();
     }

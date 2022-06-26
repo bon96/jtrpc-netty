@@ -74,10 +74,10 @@ public abstract class NetworkNode {
         RemoteMethod remoteMethod = getMatch(remoteMethodCall);
         if (remoteMethod != null) {
             try {
-                if (remoteMethod.getMethod().getReturnType().equals(void.class)) {
-                    remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects(decoder));
-                    return;
-                }
+             //   if (remoteMethod.getMethod().getReturnType().equals(void.class)) {
+            //        remoteMethod.getMethod().invoke(remoteMethod.getClassInstance(), remoteMethodCall.getObjects(decoder));
+           //         return;
+            //    }
 
                 send(new RemoteAnswer(
                         remoteMethodCall.getSenderName(),
@@ -154,10 +154,13 @@ public abstract class NetworkNode {
                 RemoteMethodCall remoteMethodCall = new RemoteMethodCall(getName(), clientName, method.getDeclaringClass(), method, args1);
                 remoteMethodCall.setCallBySimpleName(ignorePath);
 
+
+                /*
                 if (method.getReturnType() == void.class) {
                     send(remoteMethodCall);
                     return null;
                 }
+                 */
                 return sendAndWait(remoteMethodCall);
             }
             return proxy.invokeSuper(obj, args1);
