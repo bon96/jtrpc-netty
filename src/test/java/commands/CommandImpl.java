@@ -9,8 +9,14 @@ package commands;
 public class CommandImpl implements Command {
 
     @Override
-    public String sayHiToServer() {
+    public String sayHiToServer(String msg) {
+        System.out.println("Client said " + msg);
         return "Server says hi!";
+    }
+
+    @Override
+    public void run(SerializableRunner runner) {
+        runner.run();
     }
 }
 

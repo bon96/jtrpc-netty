@@ -1,4 +1,5 @@
 import commands.Command;
+import commands.CommandImpl;
 import org.bonbom.Server;
 
 
@@ -7,7 +8,7 @@ public class ExampleServer {
         Server server = new Server(8080);
         server.start();
         System.setProperty("source", "server");
-        server.registerMethods(Command.class);
+        server.registerMethods(Command.class, CommandImpl.class);
     }
 }
 

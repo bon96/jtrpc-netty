@@ -1,17 +1,17 @@
-import commands.Command2;
+import commands.Command;
 import org.bonbom.Client;
-
-import java.util.HashMap;
 
 public class ExampleClient {
 
     public static void main(String[] args) throws Exception {
         Client client = new Client("localhost", 8080);
         client.start();
-        Command2 command2 = client.createProxy(Command2.class);
+        Command command = client.createProxy(Command.class);
+        System.out.println(command.sayHiToServer("Client says hi!"));
+
         System.setProperty("source", "client");
-        command2.sayHiToServer("");
-        command2.run(() -> System.out.println(System.getProperty("source")));
+
+        command.run(() -> System.out.println(System.getProperty("source")));
         client.stop();
     }
 }
